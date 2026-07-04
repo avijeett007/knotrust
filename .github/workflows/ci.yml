@@ -52,12 +52,15 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      # No `cache: pnpm` here on purpose: setup-node's pnpm cache probe would
+      # invoke pnpm@11.9 during *setup* (before the assertion step), and pnpm 11
+      # needs node:sqlite which Node 20 lacks — so the job would die unwrapped at
+      # setup instead of reaching the assertion below. We WANT the failure to
+      # happen inside the guarded `pnpm install` so it can be asserted.
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
 
       - name: Assert install is rejected below the Node >=22 engines floor
         run: |
@@ -87,8 +90,12 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
-      - name: Build the harness (dist/ must exist — the baseline acceptance test spawns bin.mjs, which imports the compiled dist/fake-server/process-entry.js)
-        run: pnpm --filter @knotrust/test-harness build
+      # Build the harness AND its workspace dependencies in order. The harness
+      # imports @knotrust/core (leak-scan.ts), so a bare `--filter @knotrust/test-harness build`
+      # fails typecheck when core's dist/types aren't built yet. turbo's filter
+      # builds the dependency graph (core, store, then the harness) first.
+      - name: Build the harness + its dependencies (dist/ must exist — the baseline acceptance test spawns bin.mjs)
+        run: pnpm turbo build --filter=@knotrust/test-harness
 
       - name: Run the harness's own acceptance suite (R56 — proxy-free baseline conversation + 100-iteration seeded chaos run)
         run: pnpm --filter @knotrust/test-harness test
