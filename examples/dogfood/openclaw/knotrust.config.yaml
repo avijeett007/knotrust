@@ -1,0 +1,68 @@
+# KnoTrust dogfood config — OpenClaw (P0-E9-T1, R156).
+#
+# HONEST SCOPE (read examples/dogfood/README.md first): this is the
+# hand-reviewed, buildable config for wrapping OpenClaw's real MCP server(s)
+# with `knotrust --`. It has NOT been run against the real OpenClaw MCP
+# server in this repo — that server lives in a separate KnoTrust-org system,
+# not present here. It IS exercised for real, end-to-end, against the E11-T1
+# test harness's fake MCP server (a faithful MCP stand-in configured with
+# this exact tool surface) by test/adversarial/src/dogfood.e2e.test.ts —
+# see that file and RUNBOOK.md for what "exercised" means here.
+#
+# Tool surface: a plausible OpenClaw-ish coding-agent harness (file/code
+# tools, shell, deploy). Tiers are hand-reviewed per R156's worked example
+# (read → routine, write/edit → sensitive, delete/deploy/exec → critical):
+#
+#   - `source: annotation` — seeded from the server's own tool annotations
+#     (e.g. `readOnlyHint: true`) during `knotrust init`'s tool-capture pass;
+#     read-only tools land here as a starting point, not a final answer.
+#   - `source: pack`        — tiered by an applied policy pack
+#     (`knotrust add pack`); a hand-authored pack ships alongside this
+#     config's history, not committed here (P0 packs are local/unsigned,
+#     R117) — this file already reflects what applying it would produce.
+#   - `source: user`        — hand-reviewed and pinned directly in this file;
+#     the only source the evaluator honors `explicitAllow`/`explicitDeny` on.
+#
+# Every tier assignment below was reviewed by hand before being pinned here —
+# annotations only ever seed the routine bucket, never critical.
+version: 1
+scope: personal
+identity:
+  subjectId: avijeett007@gmail.com
+  subjectType: user
+servers:
+  openclaw:
+    tools:
+      # --- routine: read-only, safe to run uninterrupted on the fast path ---
+      openclaw.read_file:
+        tier: routine
+        source: annotation
+      openclaw.list_directory:
+        tier: routine
+        source: annotation
+      openclaw.search_code:
+        tier: routine
+        source: annotation
+      # --- sensitive: mutates local/repo state; requestable, not blocking ---
+      openclaw.write_file:
+        tier: sensitive
+        source: pack
+      openclaw.apply_patch:
+        tier: sensitive
+        source: pack
+      openclaw.git_commit:
+        tier: sensitive
+        source: pack
+      # --- critical: arbitrary execution / external effect; always held for
+      #     human approval, hand-pinned (never annotation- or pack-seeded) ---
+      openclaw.run_shell:
+        tier: critical
+        source: user
+      openclaw.deploy:
+        tier: critical
+        source: user
+# An unlisted OpenClaw tool (one added to its MCP server after this config
+# was last reviewed) never gets a silent free pass — never "routine"
+# (schema-enforced, see packages/store/src/config.ts's UnknownToolTierEnum).
+unknownToolTier: sensitive
+approvalTimeoutSeconds: 300

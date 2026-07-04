@@ -1,0 +1,20 @@
+{
+  "name": "number-forms",
+  "description": "context.arguments carrying a numeric array [1, 1.5, 1e21, -0, 0.000001] — locks ECMAScript-shortest-round-trip number formatting: 1e21 → 1e+21, 0.000001 → 0.000001, and -0 → 0 (JSON source preserves negative zero via JSON.parse; the canonicalizer emits \"0\"). Array order is preserved, never sorted.",
+  "request": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8QNUMBERFORMS0000001",
+    "timestamp": "2026-07-03T00:00:00.000Z",
+    "subject": { "type": "user", "id": "u@example.com" },
+    "action": { "name": "svc.compute" },
+    "resource": { "type": "calc", "id": "c1" },
+    "context": {
+      "agent": { "id": "agent-1", "type": "ai_agent" },
+      "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true },
+      "arguments": { "forms": [1, 1.5, 1e21, -0, 0.000001] }
+    },
+    "surface": { "kind": "sdk", "instanceId": "sdk_c1" }
+  },
+  "canonical": "{\"action\":\"svc.compute\",\"agent\":\"agent-1\",\"arguments\":{\"forms\":[1,1.5,1e+21,0,0.000001]},\"resource\":{\"id\":\"c1\",\"properties\":null,\"type\":\"calc\"},\"subject\":\"u@example.com\",\"v\":1}",
+  "hash": "sha256:1830d664bc32a3d97d7287327097a6722a6e960b14049bfc10ae853685c970d4"
+}

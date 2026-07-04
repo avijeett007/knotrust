@@ -1,0 +1,52 @@
+{
+  "name": "knotrust",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "bin": {
+    "knotrust": "./dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project cli",
+    "lint": "biome check --error-on-warnings .",
+    "prepack": "node scripts/pack-manifest.mjs strip",
+    "postpack": "node scripts/pack-manifest.mjs restore"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "c12": "^3.3.4",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/sdk-trace-node": "^2.9.0",
+    "@opentelemetry/resources": "^2.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.220.0"
+  },
+  "optionalDependencies": {
+    "@napi-rs/keyring": "^1.3.0"
+  },
+  "devDependencies": {
+    "@knotrust/approval": "workspace:*",
+    "@knotrust/core": "workspace:*",
+    "@knotrust/grants": "workspace:*",
+    "@knotrust/otel": "workspace:*",
+    "@knotrust/proxy-stdio": "workspace:*",
+    "@knotrust/store": "workspace:*",
+    "@knotrust/test-harness": "workspace:*",
+    "@clack/prompts": "^1.7.0",
+    "zod": "catalog:",
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "tsup": "catalog:",
+    "vitest": "catalog:"
+  }
+}

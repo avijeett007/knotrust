@@ -1,0 +1,46 @@
+{
+  "name": "pack-clamp-floor",
+  "description": "Plan-mandated acceptance case (brief §I2.5): a pack entry assigning \"routine\" to a tool the admin envelope floors at \"sensitive\" resolves as \"sensitive\" — packs can never lower a tool's tier below the admin envelope floor. Resolves via the sensitive tier default (no covering grant, no explicit allow) at precedence layer 4, with the clamp recorded for audit.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000PACKCLMP1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "community.pack_tool" },
+      "resource": { "type": "generic_resource", "id": "res_1" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "community-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "community.pack_tool": { "tier": "routine", "source": "pack" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "envelope": {
+      "scope": "personal",
+      "tierFloors": { "community.pack_tool": "sensitive" }
+    },
+    "coveringGrants": [],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "no_grant_sensitive",
+    "tier": "sensitive",
+    "precedenceLayer": 4,
+    "clamped": { "from": "routine", "to": "sensitive" },
+    "requestable": {
+      "how": "knotrust grant --tool community.pack_tool --server community-mcp"
+    },
+    "cacheEligible": true
+  }
+}

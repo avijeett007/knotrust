@@ -1,0 +1,17 @@
+{
+  "name": "outcome-fifth-value",
+  "description": "One of the four E2-T1 negatives: a fifth outcome value (\"maybe_later\") outside the four-outcome union (allow | deny | pending_approval | deferred_not_eligible) — the core returns exactly these four outcomes ([KNOTRUST], stable; brief §E2), never a fifth.",
+  "target": "decision.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q0000000000000000000",
+    "decisionId": "01JZ8Q0DECISION0000000001",
+    "outcome": "maybe_later",
+    "tier": "routine",
+    "reasonCode": "cache_hit",
+    "cache": { "hit": true, "ttlSeconds": 3600 },
+    "evaluatedBy": "grant",
+    "latencyMs": 0.4
+  },
+  "valid": false
+}

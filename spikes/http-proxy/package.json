@@ -1,0 +1,17 @@
+{
+  "name": "knotrust-spike-http-proxy",
+  "private": true,
+  "version": "0.0.0",
+  "description": "SPIKE (throwaway, non-production) — P0-E10-T1: stateless multi-replica MCP approval resumption via SEP-2322 (MRTR) requestState. NOT a pnpm workspace member, NOT wired into any @knotrust/* package, NEVER published. See README.md and docs/03-engineering/spike-http-findings.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "demo": "node src/run-demo.mjs"
+  },
+  "dependencies": {
+    "@hono/node-server": "1.19.14",
+    "hono": "4.12.27"
+  }
+}

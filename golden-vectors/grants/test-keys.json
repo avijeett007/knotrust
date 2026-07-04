@@ -1,0 +1,21 @@
+{
+  "warning": "TEST-ONLY KEYS — never use outside golden-vector suites. These seeds are obviously synthetic (repeating hex patterns), committed in plaintext on purpose, and must never back a real identity.",
+  "primary": {
+    "seed": "4242424242424242424242424242424242424242424242424242424242424242",
+    "publicKeyJwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI"
+    },
+    "kid": "MJfi3uLLSjS1OEDN"
+  },
+  "secondary": {
+    "seed": "1337133713371337133713371337133713371337133713371337133713371337",
+    "publicKeyJwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "cSsrYiLLZYUEIw7vaqGaItQTbTha9bjeeXzzYhnlsCw"
+    },
+    "kid": "iKIVxfK8MBdwm8ee"
+  }
+}

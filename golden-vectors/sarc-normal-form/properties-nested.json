@@ -1,0 +1,27 @@
+{
+  "name": "properties-nested",
+  "description": "resource.properties carrying a nested object (meta) and arrays of mixed primitives (booleans, null, strings). Locks recursive key sorting through resource.properties.meta (a before b) and mixed-array preservation.",
+  "request": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8QPROPSNESTED0000001",
+    "timestamp": "2026-07-03T00:00:00.000Z",
+    "subject": { "type": "user", "id": "u@example.com" },
+    "action": { "name": "db.write" },
+    "resource": {
+      "type": "record",
+      "id": "r1",
+      "properties": {
+        "amount": 42000,
+        "meta": { "a": 1, "b": [true, false, null] },
+        "tags": ["x", "y"]
+      }
+    },
+    "context": {
+      "agent": { "id": "svc-agent", "type": "workload" },
+      "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+    },
+    "surface": { "kind": "sdk", "instanceId": "sdk_r1" }
+  },
+  "canonical": "{\"action\":\"db.write\",\"agent\":\"svc-agent\",\"arguments\":null,\"resource\":{\"id\":\"r1\",\"properties\":{\"amount\":42000,\"meta\":{\"a\":1,\"b\":[true,false,null]},\"tags\":[\"x\",\"y\"]},\"type\":\"record\"},\"subject\":\"u@example.com\",\"v\":1}",
+  "hash": "sha256:ed9ec42e4fcf85292a1bd9dd6afde9c174c7024344db95e36063fac03413f663"
+}

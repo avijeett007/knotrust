@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="knotrust-favicon-title">
+  <title id="knotrust-favicon-title">KnoTrust</title>
+  <!--
+    KnoTrust favicon — same two-loop interlock as logo.svg, simplified for
+    tiny sizes: thicker bands (100 vs 70) and a wider weave patch (30° vs
+    26°) so the crossing still reads as an intentional interlock (not noise)
+    once anti-aliased down to 16-32px, per the brief's allowance for a
+    favicon-optimized simplification of the primary mark.
+  -->
+  <g stroke-linecap="round" fill="none" transform="rotate(32 256 256)">
+    <path d="M 276.22 364.71 A 140 140 0 1 1 276.22 147.29" stroke="#14131C" stroke-width="100"/>
+    <path d="M 235.78 147.29 A 140 140 0 1 1 235.78 364.71" stroke="#E7A93A" stroke-width="100"/>
+    <path d="M 222.01 120.19 A 140 140 0 0 1 285.36 155.39" stroke="#14131C" stroke-width="100"/>
+  </g>
+</svg>

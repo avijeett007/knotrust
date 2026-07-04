@@ -1,0 +1,37 @@
+{
+  "name": "@knotrust/proxy-stdio",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project proxy-stdio",
+    "lint": "biome check --error-on-warnings ."
+  },
+  "dependencies": {
+    "@knotrust/core": "workspace:*",
+    "@knotrust/store": "workspace:*",
+    "@modelcontextprotocol/sdk": "catalog:"
+  },
+  "devDependencies": {
+    "@knotrust/approval": "workspace:*",
+    "@knotrust/grants": "workspace:*",
+    "@knotrust/test-harness": "workspace:*",
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:",
+    "ajv": "catalog:",
+    "ajv-formats": "catalog:"
+  }
+}

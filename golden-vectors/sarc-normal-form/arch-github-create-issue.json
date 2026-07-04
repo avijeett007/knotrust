@@ -1,0 +1,23 @@
+{
+  "name": "arch-github-create-issue",
+  "description": "Architecture §2 example request (github.create_issue), no context.arguments → arguments serializes as null. Locks the top-level normal-form key order (action, agent, arguments, resource, subject, v) and the nested resource.properties key sort (labels, title).",
+  "request": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q3M9X7R2K4V6B0YHTDC1A",
+    "timestamp": "2026-07-03T14:32:10.221Z",
+    "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+    "action": { "name": "github.create_issue" },
+    "resource": {
+      "type": "github_repo",
+      "id": "kno2gether/openclaw",
+      "properties": { "title": "Race in proxy shutdown", "labels": ["bug"] }
+    },
+    "context": {
+      "agent": { "id": "claude-desktop", "type": "ai_agent" },
+      "env": { "time": "2026-07-03T14:32:10Z", "surfaceLocal": true }
+    },
+    "surface": { "kind": "stdio_proxy", "instanceId": "px_01JZ8Q3", "server": "github-mcp" }
+  },
+  "canonical": "{\"action\":\"github.create_issue\",\"agent\":\"claude-desktop\",\"arguments\":null,\"resource\":{\"id\":\"kno2gether/openclaw\",\"properties\":{\"labels\":[\"bug\"],\"title\":\"Race in proxy shutdown\"},\"type\":\"github_repo\"},\"subject\":\"avijeett007@gmail.com\",\"v\":1}",
+  "hash": "sha256:b84134672a807add9862fbe756dd6e9a8b8be49f77fe1f86a8308f4c99749c04"
+}

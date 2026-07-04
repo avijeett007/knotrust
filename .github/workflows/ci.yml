@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - phase-0
+
+jobs:
+  ci:
+    name: "lint/typecheck/test/build (node ${{ matrix.node }}, ${{ matrix.os }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        # Floor is Node >= 22 (engines + engine-strict); only the floor is
+        # exercised here to keep CI minutes lean for Phase 0 — revisit adding
+        # 24 to the matrix once a second supported major is worth the cost.
+        node: [22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Core package boundary gate (invariant §4.1 — no @modelcontextprotocol/proxy-stdio imports in @knotrust/core)
+        run: bash scripts/check-core-boundary.sh
+
+      - name: Lint, typecheck, test, build
+        run: pnpm turbo lint typecheck test build
+
+  node20-floor:
+    name: Node 20 floor is rejected
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Assert install is rejected below the Node >=22 engines floor
+        run: |
+          if pnpm install --frozen-lockfile; then
+            echo "::error::pnpm install succeeded on Node 20 — engines >=22 with engine-strict=true should have rejected it."
+            exit 1
+          fi
+          echo "pnpm install correctly failed on Node 20 (engine-strict floor enforced)."
+
+  integration-test:
+    name: "Integration harness acceptance (P0-E11-T1: fake MCP server + fake client)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the harness (dist/ must exist — the baseline acceptance test spawns bin.mjs, which imports the compiled dist/fake-server/process-entry.js)
+        run: pnpm --filter @knotrust/test-harness build
+
+      - name: Run the harness's own acceptance suite (R56 — proxy-free baseline conversation + 100-iteration seeded chaos run)
+        run: pnpm --filter @knotrust/test-harness test
+
+  bench-trend:
+    name: "Latency bench trend (P0-E9-T3) — soft-fail, non-blocking"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build every workspace package (the bench's real dependencies — proxy-stdio/grants/core/store/test-harness — plus the bench package itself)
+        run: pnpm turbo build
+
+      # R153: this bench run is a TREND record on shared, noisy CI hardware,
+      # never a hard pass/fail gate — `continue-on-error` so a slow/jittery
+      # shared runner can never block a merge. The hard pass/fail number
+      # docs/03-engineering/latency-budgets.md reports is an owner-run
+      # dedicated-reference-machine step, not this job.
+      - name: Run the real bench (>=1000 iterations/path) — SOFT-FAIL, non-blocking
+        id: bench
+        continue-on-error: true
+        run: pnpm --filter @knotrust/bench bench
+
+      - name: Upload bench results (trend artifact — compare across runs over time)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.run_id }}
+          path: test/bench/results/latest.json
+          retention-days: 90
+          if-no-files-found: warn

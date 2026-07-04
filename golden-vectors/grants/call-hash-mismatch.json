@@ -1,0 +1,46 @@
+{
+  "name": "call-hash-mismatch",
+  "description": "An ephemeral grant whose `ch` is bound to one approved call; the live verifyContext.callHash is computed from a DIFFERENT call (a different charge id) — the TOCTOU gate rejects it as grant_call_mismatch even though resolvedTier equals the grant's own tierCap (so a tier-cap check, if reached, would have passed — R35 orders call-hash strictly before tier-cap).",
+  "token": "eyJhbGciOiJFZERTQSIsInR5cCI6Imtub3RydXN0LWdyYW50K2p3cyIsImtpZCI6Ik1KZmkzdUxMU2pTMU9FRE4ifQ.eyJ2IjoxLCJqdGkiOiIwMUdPTERHUkFOVDAwMDciLCJpYXQiOjE3OTk5OTk5OTAsImV4cCI6MTgwMDAwMDExMCwiaXNzIjoidXNlcjphdmlqZWV0dDAwN0BnbWFpbC5jb20iLCJrIjoiZXBoZW1lcmFsIiwic3UiOnRydWUsInAiOnsidHlwZSI6InVzZXIiLCJpZCI6ImF2aWplZXR0MDA3QGdtYWlsLmNvbSJ9LCJhZyI6eyJpZCI6ImNvZGV4LWNsaSIsInR5cGUiOiJhaV9hZ2VudCJ9LCJ0Ijoic3RyaXBlLmNyZWF0ZV9yZWZ1bmQiLCJzIjp7InJlc291cmNlVHlwZSI6InN0cmlwZV9jaGFyZ2UiLCJpZFBhdHRlcm4iOiJjaF8zUGFiY1hZWiJ9LCJyIjoiY3JpdGljYWwiLCJlcyI6InBlcnNvbmFsIiwiY2giOiJzaGEyNTY6YjNkODE0NzI4YWEwODYyNDQzZTY0NDY0YTAzYjc2YTdkZDQ0Nzg5N2FiNzYwMDdmNGFiMGM5MmNiMzY5NzA0YSJ9.GKX3n--Opwm0Qi8j1Z6spaYOyH2z8mqOgwIEbtVDDn8yoeF5xclq8IjTRewpABXXNvA55vn6gbasF2e7-DmhDw",
+  "verifyContext": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01GVGRANT0000000CHMISMRQ",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": {
+        "type": "user",
+        "id": "avijeett007@gmail.com"
+      },
+      "action": {
+        "name": "stripe.create_refund"
+      },
+      "resource": {
+        "type": "stripe_charge",
+        "id": "ch_3PabcXYZ"
+      },
+      "context": {
+        "agent": {
+          "id": "codex-cli",
+          "type": "ai_agent"
+        },
+        "env": {
+          "time": "2026-07-03T00:00:00Z",
+          "surfaceLocal": true
+        }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "resolvedTier": "critical",
+    "nowEpochSeconds": 1800000000,
+    "callHash": "sha256:ac644c0eb14d64a4607eada93313a2d1fa41b2a6f5ab4a98b44bdbe33ecb3b91",
+    "resolveKid": "primary"
+  },
+  "expected": {
+    "ok": false,
+    "reasonCode": "grant_call_mismatch"
+  }
+}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="knotrust-mark-title">
+  <title id="knotrust-mark-title">KnoTrust</title>
+  <!--
+    KnoTrust mark — "the seam."
+
+    Two rounded bands hooked through one another like two links caught
+    mid-cinch: the ink band is the policy/grant boundary, the gold band is
+    the tool call threading through it. They aren't just overlapped — the
+    stroke order flips at the top crossing (see the short ink "weave" patch
+    below) so one band visibly passes over, then under, the other. That
+    alternation is the whole idea: nothing crosses from one loop to the other
+    except through that one seam, and the seam is where KnoTrust sits.
+
+    Colors (see /BRAND.md for the full token set):
+      #14131C  ink token    primary / grant loop / use on light surfaces
+      #E7A93A  gold token   accent  / call thread
+    For dark surfaces, swap #14131C for the paper token #F5F4F0 — see
+    logo-dark.svg for a ready-made variant.
+
+    Geometry is parametric: two circles of radius 140, centers 136 apart,
+    stroke 70, whole group rotated 32 degrees around the canvas center.
+  -->
+  <g stroke-linecap="round" fill="none" transform="rotate(32 256 256)">
+    <!-- Ink loop: the grant / policy boundary -->
+    <path d="M 276.22 364.71 A 140 140 0 1 1 276.22 147.29" stroke="#14131C" stroke-width="70"/>
+    <!-- Gold loop: the tool-call thread -->
+    <path d="M 235.78 147.29 A 140 140 0 1 1 235.78 364.71" stroke="#E7A93A" stroke-width="70"/>
+    <!-- Weave patch: brings the ink loop back to front at the top crossing -->
+    <path d="M 226.73 121.46 A 140 140 0 0 1 281.79 152.06" stroke="#14131C" stroke-width="70"/>
+  </g>
+</svg>

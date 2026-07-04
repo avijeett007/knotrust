@@ -1,0 +1,15 @@
+{
+  "name": "knotrust-website",
+  "private": true,
+  "version": "0.0.0",
+  "description": "KnoTrust documentation site (VitePress). Isolated from the knotrust monorepo build.",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}

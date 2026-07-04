@@ -1,0 +1,49 @@
+{
+  "name": "grant-exceeds-envelope-critical",
+  "description": "R15 ratification: a critical-tier tool with a covering grant whose native tierCap is \"critical\" (i.e. it genuinely covers) is clamped by the admin envelope's grantCeiling: \"sensitive\" — one rank below critical, so no grant this envelope could ever issue reaches critical. Unlike the sensitive-tier grant-exceeds-envelope case (grant-exceeds-envelope.json), there is NO fall-through to a layer-4 explicit_config_allow here: that path only ever exists at sensitive tier (L0ReasonCode.ExplicitConfigAllow is never emitted for critical), so critical is categorically unreachable by any grant under this envelope — approving would just mint an ephemeral grant the same ceiling would reject, a futile loop the engine avoids by denying decisively and loudly at layer 3 instead of escalating to pending_approval. Contrast with the no-grant baseline under the identical envelope (packages/core/src/precedence.test.ts), which instead falls through all the way to layer 4 and resolves pending_approval/no_grant_critical — proving the asymmetry is deliberate: an over-ceiling grant is diagnosed explicitly (grant_exceeds_envelope) rather than collapsing into the generic no-grant path.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000CRITCEIL1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "stripe.create_refund" },
+      "resource": { "type": "stripe_charge", "id": "ch_3PabcXYZ" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "stripe.create_refund": { "tier": "critical", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "envelope": {
+      "scope": "personal",
+      "grantCeiling": "sensitive"
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "critical",
+        "exp": 1800001000,
+        "jti": "01GRANT_CRIT_CEIL_CLAMPED"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "grant_exceeds_envelope",
+    "tier": "critical",
+    "precedenceLayer": 3,
+    "cacheEligible": false
+  }
+}

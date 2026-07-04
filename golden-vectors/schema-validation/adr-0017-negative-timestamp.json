@@ -1,0 +1,19 @@
+{
+  "name": "adr-0017-negative-timestamp",
+  "description": "ADR-0017's own regression-guard vector: \"2026-07-03T14:32:10\" is valid ISO-8601 (an offset-less local date-time) but is NOT valid RFC 3339 (RFC 3339 §5.6 requires every date-time to carry a UTC offset, \"Z\" or \"±hh:mm\"). A validator in any language that checks only `type: \"string\"` for `timestamp` and never asserts `format: date-time` will WRONGLY accept this fixture — asserting `format: date-time` (ajv-formats in TypeScript; an explicit FormatChecker in the Phase-3 Python port, since python-jsonschema does not enable format assertion by default) is what this vector exists to force.",
+  "target": "decision-request.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q0000000000000000000",
+    "timestamp": "2026-07-03T14:32:10",
+    "subject": { "type": "service", "id": "svc:knotrust-cli" },
+    "action": { "name": "filesystem.read_file" },
+    "resource": { "type": "file", "id": "/tmp/example.txt" },
+    "context": {
+      "agent": { "id": "knotrust-cli", "type": "workload" },
+      "env": { "time": "2026-07-03T00:00:00.000Z", "surfaceLocal": true }
+    },
+    "surface": { "kind": "sdk", "instanceId": "sdk_01JZ8Q0" }
+  },
+  "valid": false
+}

@@ -1,0 +1,45 @@
+{
+  "name": "wrong-key",
+  "description": "A validly-minted (primary-signed) durable grant whose verify context resolves the SECONDARY test key's pubkey for the primary's kid (a misresolved/hostile key mapping) — the Ed25519 verify fails against the wrong key material: grant_invalid_signature, distinct from grant_unknown_key (the kid still resolves to SOME key, just the wrong one).",
+  "token": "eyJhbGciOiJFZERTQSIsInR5cCI6Imtub3RydXN0LWdyYW50K2p3cyIsImtpZCI6Ik1KZmkzdUxMU2pTMU9FRE4ifQ.eyJ2IjoxLCJqdGkiOiIwMUdPTERHUkFOVDAwMDMiLCJpYXQiOjE3OTk5OTkwMDAsImV4cCI6MTgwMjU5MTAwMCwiaXNzIjoidXNlcjphdmlqZWV0dDAwN0BnbWFpbC5jb20iLCJrIjoiZHVyYWJsZSIsInN1IjpmYWxzZSwicCI6eyJ0eXBlIjoidXNlciIsImlkIjoiYXZpamVldHQwMDdAZ21haWwuY29tIn0sImFnIjoiKiIsInQiOiJnaXRodWIuKiIsInMiOnsicmVzb3VyY2VUeXBlIjoiZ2l0aHViX3JlcG8iLCJpZFBhdHRlcm4iOiJrbm8yZ2V0aGVyLyoifSwiciI6InNlbnNpdGl2ZSIsImVzIjoicGVyc29uYWwifQ.hjqY9sgSgl8dJN-w-VgvrXs6stlnW78yy4ER2Po5qo1YjtMP7pE9cPo3q4gB2_J__m46QZKd-z34EpLtVlU9Bg",
+  "verifyContext": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01GVGRANT0000000WRONGKYRQ",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": {
+        "type": "user",
+        "id": "avijeett007@gmail.com"
+      },
+      "action": {
+        "name": "github.create_issue"
+      },
+      "resource": {
+        "type": "github_repo",
+        "id": "kno2gether/openclaw"
+      },
+      "context": {
+        "agent": {
+          "id": "claude-desktop",
+          "type": "ai_agent"
+        },
+        "env": {
+          "time": "2026-07-03T00:00:00Z",
+          "surfaceLocal": true
+        }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "github-mcp"
+      }
+    },
+    "resolvedTier": "sensitive",
+    "nowEpochSeconds": 1800000000,
+    "resolveKid": "secondary"
+  },
+  "expected": {
+    "ok": false,
+    "reasonCode": "grant_invalid_signature"
+  }
+}

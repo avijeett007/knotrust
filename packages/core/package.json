@@ -1,0 +1,30 @@
+{
+  "name": "@knotrust/core",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project core",
+    "lint": "biome check --error-on-warnings . && pnpm run lint:boundaries",
+    "lint:boundaries": "node scripts/check-boundaries.mjs"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:",
+    "ajv": "catalog:",
+    "ajv-formats": "catalog:"
+  }
+}

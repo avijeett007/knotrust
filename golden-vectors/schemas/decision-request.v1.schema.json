@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knotrust.dev/schemas/decision-request.v1.schema.json",
+  "$comment": "Timestamps are RFC 3339-profiled (ADR-0017); validators in every language MUST assert format: date-time.",
+  "title": "DecisionRequest",
+  "description": "KnoTrust DecisionRequest contract v1 (P0-E2-T1). Language-neutral mirror of packages/core/src/contract.ts's DecisionRequest and its nested types. SARC shape per COAZ mapping rule: the HUMAN principal is `subject`; AGENT identity is `context.agent` — never merged.",
+  "type": "object",
+  "properties": {
+    "contractVersion": { "const": "1.0" },
+    "requestId": {
+      "type": "string",
+      "description": "ULID; correlates request → decision → approval → audit."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601, when the surface produced the request."
+    },
+    "subject": { "$ref": "#/$defs/Subject" },
+    "action": { "$ref": "#/$defs/Action" },
+    "resource": { "$ref": "#/$defs/Resource" },
+    "context": { "$ref": "#/$defs/DecisionContext" },
+    "surface": { "$ref": "#/$defs/SurfaceMetadata" },
+    "toolAnnotations": { "$ref": "#/$defs/UntrustedToolAnnotations" }
+  },
+  "required": ["contractVersion", "requestId", "timestamp", "subject", "action", "resource", "context", "surface"],
+  "additionalProperties": false,
+  "$defs": {
+    "Subject": {
+      "description": "AuthZEN Subject: REQUIRED type,id.",
+      "type": "object",
+      "properties": {
+        "type": { "enum": ["user", "service"] },
+        "id": { "type": "string", "description": "e.g. \"avijeett007@gmail.com\"." },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "authn": { "enum": ["os_session", "jwt_sub", "unauthenticated"] },
+            "tenant": {
+              "type": "string",
+              "description": "Present even in P1 (schema-forward for P2 org scope)."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "id"],
+      "additionalProperties": false
+    },
+    "Action": {
+      "description": "AuthZEN Action: REQUIRED name.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Fully-qualified verb, e.g. \"stripe.create_refund\"." },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "mcpMethod": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "Resource": {
+      "description": "AuthZEN Resource: REQUIRED type,id.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "description": "e.g. \"stripe_charge\", \"github_repo\"." },
+        "id": { "type": "string", "description": "e.g. \"ch_3P...\" or \"kno2gether/openclaw\"." },
+        "properties": {
+          "type": "object",
+          "description": "Conditions material: amount, path, labels...",
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "id"],
+      "additionalProperties": false
+    },
+    "DecisionContext": {
+      "type": "object",
+      "properties": {
+        "agent": {
+          "description": "COAZ: agent identity lives HERE, sibling to subject — never in subject. [DRAFT-tracked]",
+          "$ref": "#/$defs/AgentIdentity"
+        },
+        "env": {
+          "type": "object",
+          "properties": {
+            "time": { "type": "string", "format": "date-time" },
+            "surfaceLocal": {
+              "type": "boolean",
+              "description": "Human-at-keyboard vs remote/unattended."
+            },
+            "voiceSession": {
+              "type": "boolean",
+              "description": "Drives deferred_not_eligible eligibility."
+            }
+          },
+          "required": ["time", "surfaceLocal"],
+          "additionalProperties": true
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Raw tool-call arguments as the surface received them (verbatim). Hashed into the SARC normal form (call-hash binding, brief §I2.3) and audit argsHash — never logged raw by default. Optional. Added 2026-07-03 (P0-E3-T3, R32).",
+          "additionalProperties": true
+        }
+      },
+      "required": ["agent", "env"],
+      "additionalProperties": false
+    },
+    "AgentIdentity": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Stable KnoTrust agent id, e.g. \"claude-desktop\"." },
+        "type": {
+          "enum": ["ai_agent", "workload", "user"],
+          "description": "AARP client.actor.type vocabulary."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "OAuth client_id if available (COAZ derives agent from token.client_id)."
+        },
+        "model": { "type": "string", "description": "Advisory only." }
+      },
+      "required": ["id", "type"],
+      "additionalProperties": false
+    },
+    "SurfaceMetadata": {
+      "type": "object",
+      "properties": {
+        "kind": { "enum": ["stdio_proxy", "http_proxy", "sdk", "client_hook", "sandbox_broker"] },
+        "instanceId": { "type": "string" },
+        "server": { "type": "string", "description": "Logical MCP server name being fronted." },
+        "specVersion": {
+          "enum": ["2025-11-25", "2026-07-28"],
+          "description": "MCP spec the surface negotiated."
+        },
+        "transport": { "enum": ["stdio", "streamable_http"] }
+      },
+      "required": ["kind", "instanceId"],
+      "additionalProperties": false
+    },
+    "UntrustedToolAnnotations": {
+      "description": "Everything here is self-declared by the server and MAY be a lie.",
+      "type": "object",
+      "properties": {
+        "trusted": {
+          "const": false,
+          "description": "Literal false — a constant reminder at the type level."
+        },
+        "source": { "const": "server_advertised" },
+        "readOnlyHint": { "type": "boolean" },
+        "destructiveHint": { "type": "boolean" },
+        "idempotentHint": { "type": "boolean" },
+        "openWorldHint": { "type": "boolean" },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "From the tools/list snapshot."
+        }
+      },
+      "required": ["trusted", "source"],
+      "additionalProperties": false
+    }
+  }
+}

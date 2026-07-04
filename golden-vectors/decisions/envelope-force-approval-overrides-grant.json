@@ -1,0 +1,50 @@
+{
+  "name": "envelope-force-approval-overrides-grant",
+  "description": "Plan-mandated acceptance case: admin envelope forceApprovalTiers: [\"critical\"] forces pending_approval even though a valid critical-cap covering grant exists. Admin wins over grants (PRD §7). Precedence layer 1.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000FORCEAPR1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "stripe.create_refund" },
+      "resource": { "type": "stripe_charge", "id": "ch_3PabcXYZ" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "stripe.create_refund": { "tier": "critical", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "envelope": {
+      "scope": "personal",
+      "forceApprovalTiers": ["critical"]
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "critical",
+        "exp": 1800001000,
+        "jti": "01GRANT_CRIT_FORCED"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "pending_approval",
+    "reasonCode": "envelope_force_approval",
+    "tier": "critical",
+    "precedenceLayer": 1,
+    "wantsApproval": true,
+    "cacheEligible": false
+  }
+}

@@ -1,0 +1,217 @@
+name: Release
+
+# Release automation for the single published package `knotrust` (packages/cli).
+# P0-E1-T3. Three concerns, deliberately separated:
+#
+#   1. release-please  — open/update the release PR from conventional commits,
+#                        and (once that PR is merged) tag + create the release.
+#   2. dry-run-verify  — SAFE, automatic. Build the CLI and mechanically assert
+#                        the publishable tarball is correct (bundled bin, no test
+#                        artifacts, no workspace: runtime deps, core inlined).
+#                        Never publishes; uses `npm pack` only.
+#   3. publish         — the REAL npm publish via OIDC trusted publishing +
+#                        provenance. HARD-GATED behind a manual workflow_dispatch
+#                        confirmation phrase so it CANNOT fire from push / PR /
+#                        schedule / a release-please release. Left un-fired in
+#                        Phase 0: the `knotrust` npm name/trademark check is a
+#                        Phase-1 gate, so Phase 0 must neither squat nor publish.
+#
+# Phase-1 precondition (brief §H5): before the FIRST real publish, npm Trusted
+# Publishing for the `knotrust` package must be configured on npmjs.com (link the
+# GitHub repo + this workflow as a trusted publisher). Until then the publish job
+# is intentionally never triggered. See docs/03-engineering/releasing.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: >-
+          DANGER: type the exact confirmation phrase to run the REAL npm publish
+          (this CLAIMS the `knotrust` npm name and is irreversible). Leave EMPTY
+          to run only the safe build + dry-run verification.
+        required: false
+        default: ""
+        type: string
+
+# Least privilege at the top level; jobs widen only what they need.
+permissions:
+  contents: read
+
+jobs:
+  # 1) release-please: PR/changelog/tagging. Only meaningful on push to main.
+  release-please:
+    name: release-please (open/update release PR)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the release commit, tag, and GitHub release
+      pull-requests: write # open/update the release PR
+    steps:
+      # release-please-action talks to the GitHub API directly (no checkout
+      # needed). Uses the default GITHUB_TOKEN. NOTE: if the org disallows
+      # "Actions creating pull requests", swap in a PAT/GitHub App token here.
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main
+
+  # 2) dry-run verification: safe on every push and every manual dispatch.
+  dry-run-verify:
+    name: publish dry-run + tarball assertions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the published CLI (bundles @knotrust/* via tsup)
+        run: pnpm turbo build --filter=knotrust
+
+      - name: Pack tarball and mechanically assert its contents
+        working-directory: packages/cli
+        run: |
+          set -euo pipefail
+
+          # Same tool the real publish job uses, so we verify what actually
+          # ships. `npm pack` writes a tarball locally and never authenticates
+          # or publishes.
+          npm pack --json > pack.json
+          TARBALL="$(jq -r '.[0].filename' pack.json)"
+
+          echo "== Tarball file listing =="
+          jq -r '.[0].files[].path' pack.json | sort | tee files.txt
+          echo
+
+          # (1) The bundled bin must be present.
+          grep -qx 'dist/bin.js' files.txt \
+            || { echo "::error::dist/bin.js missing from tarball"; exit 1; }
+
+          # (2) No compiled test artifacts / sourcemaps / type declarations.
+          if grep -Eiq '\.test\.|\.spec\.|\.map$|\.d\.ts$' files.txt; then
+            echo "::error::forbidden artifact (test/spec/map/d.ts) in tarball"
+            exit 1
+          fi
+
+          # Extract the published manifest and the ENTIRE bundled dist/ tree
+          # (not just dist/bin.js — a future multi-entry build could inline
+          # @knotrust/* into a different file, so checks (4)/(5) below must
+          # cover all of dist/, not just the CLI entry point).
+          tar -xzOf "$TARBALL" package/package.json > packed.json
+          rm -rf dist_extracted
+          mkdir -p dist_extracted
+          tar -xzf "$TARBALL" -C dist_extracted package/dist
+          DIST_DIR="dist_extracted/package/dist"
+
+          # (3) No CONSUMER-FACING dependency may carry a pnpm workspace:/catalog:
+          #     protocol (npm consumers cannot resolve it). devDependencies are
+          #     excluded on purpose: they are never installed by consumers of a
+          #     published package, so a workspace:/catalog: there is inert.
+          WS="$(jq -r '
+            [(.dependencies // {}), (.optionalDependencies // {}), (.peerDependencies // {})]
+            | add // {}
+            | to_entries[]
+            | select(.value | tostring | test("^(workspace|catalog):"))
+            | .key' packed.json)"
+          if [ -n "$WS" ]; then
+            echo "::error::workspace:/catalog: specifier in installable deps: $WS"
+            exit 1
+          fi
+          echo "OK: installable deps (dependencies/optional/peer) are protocol-free"
+
+          # (3b) WHOLE-MANIFEST sweep: this is a supply-chain-trust product
+          #      whose published artifact gets audited on a whole-manifest
+          #      reading, not just an installable-deps reading. No field of
+          #      the packed package.json — including devDependencies — may
+          #      contain a workspace:/catalog: protocol string. (The `prepack`/
+          #      `postpack` scripts in packages/cli strip devDependencies from
+          #      the packed manifest for exactly this reason; this assertion
+          #      is the mechanical backstop that would catch it if they didn't.)
+          WS_COUNT="$(grep -c 'workspace:\|catalog:' packed.json || true)"
+          if [ "${WS_COUNT:-0}" != "0" ]; then
+            echo "::error::found $WS_COUNT workspace:/catalog: occurrence(s) anywhere in packed package.json (whole-manifest scan)"
+            grep -n 'workspace:\|catalog:' packed.json || true
+            exit 1
+          fi
+          echo "OK: packed package.json has zero workspace:/catalog: occurrences anywhere in the file"
+
+          # (4) Prove @knotrust/* is INLINED into the bundle, not left external
+          #     — across the whole dist/ tree.
+          if grep -rEq 'from *"@knotrust/|require\("@knotrust/' "$DIST_DIR"; then
+            echo "::error::@knotrust/* left external in bundle (not inlined)"
+            grep -rEn 'from *"@knotrust/|require\("@knotrust/' "$DIST_DIR" || true
+            exit 1
+          fi
+          grep -rq '@knotrust/core' "$DIST_DIR" \
+            || { echo "::error::inlined @knotrust/core marker absent from bundle"; exit 1; }
+          echo "OK: dist/ inlines @knotrust/core with no external @knotrust/* import"
+
+          echo
+          echo "All tarball assertions passed."
+          rm -f "$TARBALL" pack.json files.txt packed.json
+          rm -rf dist_extracted
+
+  # 3) REAL publish. Fires ONLY on a manual workflow_dispatch whose `publish`
+  #    input is the exact confirmation phrase. The `if` below makes it
+  #    impossible to reach from push / pull_request / schedule / release events.
+  publish:
+    name: publish to npm (OIDC trusted publishing) — MANUAL, CLAIMS THE NAME
+    needs: dry-run-verify
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.publish == 'I-UNDERSTAND-THIS-CLAIMS-THE-NPM-NAME'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC: mint the token npm exchanges for keyless publish + provenance
+    # Optional Phase-1 hardening: attach a protected `environment` with required
+    # reviewers here for a second human gate.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the published CLI (bundles @knotrust/* via tsup)
+        run: pnpm turbo build --filter=knotrust
+
+      # Node 22 ships npm 10.x; OIDC Trusted Publishing needs npm >= 11.5.1.
+      - name: Upgrade npm to >= 11.5.1 (OIDC trusted publishing)
+        run: |
+          npm install -g npm@latest
+          echo "npm $(npm --version)"
+          node -e 'const s=require("child_process").execSync("npm --version").toString().trim();const [a,b,c]=s.split(".").map(Number);if(a<11||(a===11&&(b<5||(b===5&&c<1)))){console.error("::error::npm "+s+" < 11.5.1 required for OIDC trusted publishing");process.exit(1)}'
+
+      # OIDC trusted publishing: NO stored token anywhere (no NODE_AUTH_TOKEN, no
+      # secrets, no registry auth in .npmrc). npm >= 11.5.1 mints an OIDC token
+      # from `id-token: write` and exchanges it with the registry. `--provenance`
+      # attaches a signed provenance attestation. Requires Trusted Publishing to
+      # be configured for `knotrust` on npmjs.com first (Phase-1 precondition).
+      - name: Publish with provenance via OIDC (keyless)
+        working-directory: packages/cli
+        run: npm publish --provenance --access public

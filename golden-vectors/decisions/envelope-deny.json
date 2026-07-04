@@ -1,0 +1,42 @@
+{
+  "name": "envelope-deny",
+  "description": "Admin envelope denyTools wins outright, even for a routine-tier tool that would otherwise be an unconditional allow. Precedence layer 1.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000ENVDENY01",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "github.create_issue" },
+      "resource": { "type": "github_repo", "id": "kno2gether/openclaw" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "github-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "github.create_issue": { "tier": "routine", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "envelope": {
+      "scope": "personal",
+      "denyTools": ["github.create_issue"]
+    },
+    "coveringGrants": [],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "envelope_deny",
+    "tier": "routine",
+    "precedenceLayer": 1,
+    "cacheEligible": true
+  }
+}

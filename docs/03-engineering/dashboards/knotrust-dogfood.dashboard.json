@@ -1,0 +1,334 @@
+{
+  "title": "KnoTrust Dogfood",
+  "description": "P0-E8-T2 dogfood dashboard for the P0-E8-T1 OTLP/HTTP audit-stream exporter (packages/otel), extended by R132 to cover the security-anomaly spans (fail_open_fired, denial_probing_suspected, tool_definition_changed, approval_channel_violation, probe_flagged). Every panel queries spans/attributes that packages/otel/src/span-mapper.ts's mapAuditEventToSpan actually emits — no invented attribute or metric names. See docs/03-engineering/dashboards/README.md for the full attribute-to-panel mapping and the SigNoz-version assumption.",
+  "tags": ["knotrust", "dogfood", "p0-e8-t2", "audit-export"],
+  "variables": {
+    "service_name": {
+      "id": "service_name",
+      "key": "service_name",
+      "name": "service_name",
+      "description": "OTel resource service.name to scope every panel to. Defaults to ALL (no filter) so the dashboard renders regardless of the exporter's configured telemetryExport.serviceName (default \"knotrust\" — packages/store/src/config.ts's TelemetryExportConfigSchema). Narrow it once you know your deployment's configured name.",
+      "type": "DYNAMIC",
+      "dynamicVariablesSource": "Traces",
+      "dynamicVariablesAttribute": "service.name",
+      "multiSelect": true,
+      "showALLOption": true,
+      "allSelected": true,
+      "sort": "ASC",
+      "order": 0
+    }
+  },
+  "layout": [
+    { "i": "decisions-per-minute-by-outcome", "x": 0, "y": 0, "w": 12, "h": 7, "minW": 4, "minH": 5 },
+    { "i": "latency-by-path-table", "x": 0, "y": 7, "w": 12, "h": 8, "minW": 4, "minH": 5 },
+    { "i": "latency-p95-trend-by-cache-hit", "x": 0, "y": 15, "w": 12, "h": 7, "minW": 4, "minH": 5 },
+    { "i": "denial-reasons", "x": 0, "y": 22, "w": 6, "h": 6, "minW": 4, "minH": 5 },
+    { "i": "fail-open-firings", "x": 6, "y": 22, "w": 6, "h": 6, "minW": 2, "minH": 2 },
+    { "i": "approval-resolution-time", "x": 0, "y": 28, "w": 12, "h": 7, "minW": 4, "minH": 5 }
+  ],
+  "widgets": [
+    {
+      "id": "decisions-per-minute-by-outcome",
+      "panelTypes": "graph",
+      "title": "Decisions per minute, by outcome",
+      "description": "One series per knotrust.outcome value (allow | deny | pending_approval | deferred_not_eligible — the four stable Outcome literals from @knotrust/core's contract.ts), counting knotrust.decision spans over time. Source: packages/otel/src/span-mapper.ts's mapDecisionEvent — one span emitted per audited AuditEventType.DECISION event, named DECISION_SPAN_NAME ('knotrust.decision').",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "none",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "dataSource": "traces",
+              "expression": "A",
+              "disabled": false,
+              "stepInterval": null,
+              "filter": { "expression": "name = 'knotrust.decision' AND service.name in $service_name" },
+              "aggregations": [{ "expression": "count()" }],
+              "groupBy": [
+                { "key": "knotrust.outcome", "dataType": "string", "type": "tag", "signal": "traces" }
+              ],
+              "legend": "{{knotrust.outcome}}",
+              "orderBy": null,
+              "selectColumns": null,
+              "functions": null
+            }
+          ],
+          "queryFormulas": null
+        },
+        "clickhouse_sql": null,
+        "promql": null
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": null,
+      "contextLinks": { "linksData": null }
+    },
+    {
+      "id": "latency-by-path-table",
+      "panelTypes": "table",
+      "title": "Added latency (ms) by path — p50 / p95 / p99",
+      "description": "The decision span carries no single 'path' attribute, so path is DERIVED from two real attributes: knotrust.cache_hit (bool) and knotrust.outcome (string) — grouped here so every row is a real, queryable combination. Reading the rows: knotrust.cache_hit=true is the CACHE-HIT path. knotrust.cache_hit=false with knotrust.outcome NOT 'pending_approval' is the FRESH-EVALUATION path — this conflates L0 with any deeper PDP layer (cedar/opa/authzen_http/grant), because span-mapper.ts does not export an 'evaluatedBy' attribute: that field exists only on @knotrust/core's DecisionResponse and is never persisted to the audit log or the exported span (checked: packages/store/src/audit-log.ts's AuditEvent interface has no evaluatedBy field). knotrust.outcome='pending_approval' is the APPROVAL path's synchronous decision latency only (the time to produce the 'needs approval' decision) — it is NOT the end-to-end approval wait time; see the 'Approval resolution time' panel below for that. Values are knotrust.latency_ms, the exporter's own computed latency attribute.",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "none",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "dataSource": "traces",
+              "expression": "A",
+              "disabled": false,
+              "stepInterval": null,
+              "filter": { "expression": "name = 'knotrust.decision' AND service.name in $service_name" },
+              "aggregations": [
+                { "expression": "p50(knotrust.latency_ms) as 'p50_ms' p95(knotrust.latency_ms) as 'p95_ms' p99(knotrust.latency_ms) as 'p99_ms' count() as 'n'" }
+              ],
+              "groupBy": [
+                { "key": "knotrust.cache_hit", "dataType": "bool", "type": "tag", "isColumn": true, "signal": "traces" },
+                { "key": "knotrust.outcome", "dataType": "string", "type": "tag", "isColumn": true, "signal": "traces" }
+              ],
+              "orderBy": [{ "columnName": "p95_ms", "order": "desc" }],
+              "selectColumns": null,
+              "functions": null
+            }
+          ],
+          "queryFormulas": null
+        },
+        "clickhouse_sql": null,
+        "promql": null
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": null,
+      "contextLinks": { "linksData": null }
+    },
+    {
+      "id": "latency-p95-trend-by-cache-hit",
+      "panelTypes": "graph",
+      "title": "Decision latency p95 (ms) trend, cache-hit vs fresh-eval",
+      "description": "Trend companion to the table above, using the one real boolean attribute that cleanly splits the cache-hit path from everything else: knotrust.cache_hit. p95(knotrust.latency_ms), grouped by knotrust.cache_hit, over knotrust.decision spans.",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "ms",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "dataSource": "traces",
+              "expression": "A",
+              "disabled": false,
+              "stepInterval": null,
+              "filter": { "expression": "name = 'knotrust.decision' AND service.name in $service_name" },
+              "aggregations": [{ "expression": "p95(knotrust.latency_ms)" }],
+              "groupBy": [
+                { "key": "knotrust.cache_hit", "dataType": "bool", "type": "tag", "signal": "traces" }
+              ],
+              "legend": "cache_hit={{knotrust.cache_hit}}",
+              "orderBy": null,
+              "selectColumns": null,
+              "functions": null
+            }
+          ],
+          "queryFormulas": null
+        },
+        "clickhouse_sql": null,
+        "promql": null
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": null,
+      "contextLinks": { "linksData": null }
+    },
+    {
+      "id": "denial-reasons",
+      "panelTypes": "bar",
+      "title": "Denial reasons",
+      "description": "Count of knotrust.decision spans where knotrust.outcome = 'deny', grouped by knotrust.reason (the decider's free-text reason code, e.g. no_grant_sensitive).",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "none",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "dataSource": "traces",
+              "expression": "A",
+              "disabled": false,
+              "stepInterval": null,
+              "filter": { "expression": "name = 'knotrust.decision' AND knotrust.outcome = 'deny' AND service.name in $service_name" },
+              "aggregations": [{ "expression": "count()" }],
+              "groupBy": [
+                { "key": "knotrust.reason", "dataType": "string", "type": "tag", "signal": "traces" }
+              ],
+              "legend": "{{knotrust.reason}}",
+              "orderBy": null,
+              "selectColumns": null,
+              "functions": null
+            }
+          ],
+          "queryFormulas": null
+        },
+        "clickhouse_sql": null,
+        "promql": null
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": null,
+      "contextLinks": { "linksData": null }
+    },
+    {
+      "id": "fail-open-firings",
+      "panelTypes": "value",
+      "title": "Fail-open firings",
+      "description": "Count of knotrust.security.fail_open_fired spans (R132) — one per AuditEventType.FAIL_OPEN_FIRED event appended by packages/proxy-stdio/src/enforce.ts's tryAppendFailOpenFired, mapped to a span by packages/otel/src/span-mapper.ts's mapSecurityAnomalyEvent. Grouped by knotrust.tier (always 'routine' — R84's fail-open is structurally routine-only) so a non-routine value here would itself be a red flag. knotrust.reason is a FIXED safe label ('fail_open_recovery'), never the event's own free-text cause (see span-mapper.ts's FAIL_OPEN_SAFE_REASON doc comment for why that text is deliberately never exported). Alert threshold: alert if this panel's value is > 0, since any fail-open firing is unexpected/notable by design (R84).",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "none",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "dataSource": "traces",
+              "expression": "A",
+              "disabled": false,
+              "stepInterval": null,
+              "filter": { "expression": "name = 'knotrust.security.fail_open_fired' AND service.name in $service_name" },
+              "aggregations": [{ "expression": "count()" }],
+              "groupBy": [
+                { "key": "knotrust.tier", "dataType": "string", "type": "tag", "signal": "traces" }
+              ],
+              "legend": "tier={{knotrust.tier}}",
+              "orderBy": null,
+              "selectColumns": null,
+              "functions": null
+            }
+          ],
+          "queryFormulas": null
+        },
+        "clickhouse_sql": null,
+        "promql": null
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": [
+        {
+          "index": "0",
+          "isEditEnabled": true,
+          "keyIndex": 0,
+          "selectedGraph": "",
+          "thresholdColor": "Red",
+          "thresholdFormat": "Text",
+          "thresholdLabel": "unexpected fail-open (alert if > 0)",
+          "thresholdOperator": ">",
+          "thresholdTableOptions": "",
+          "thresholdUnit": "none",
+          "thresholdValue": 0
+        }
+      ],
+      "contextLinks": { "linksData": null }
+    },
+    {
+      "id": "approval-resolution-time",
+      "panelTypes": "graph",
+      "title": "Approval resolution time (ms) — p50 / p95 / p99",
+      "description": "Approval spans are point-in-time markers, not durations: mapApprovalEvent (span-mapper.ts) sets startTimeMs === endTimeMs === the event's own ts, so a single approval span's OWN duration is always zero — there is no latency_ms attribute on approval spans at all. The real 'approval resolution time' is the wall-clock gap between the requested/pending phase and the terminal phase (approved | denied | expired | cancelled) of the SAME knotrust.approval_id, which requires joining across the standalone per-phase spans (knotrust.approval.<phase>, see APPROVAL_SPAN_NAME_PREFIX in span-mapper.ts) — not expressible in the Query Builder's single-query aggregation model, hence ClickHouse SQL here (per SigNoz's own widget guidance: use ClickHouse SQL for cross-row/cross-group time-diff computations). CAVEAT (owner-run validation required, ruling R2): this SQL has been checked against the reference SigNoz MCP server's own published traces ClickHouse schema (signoz_traces.distributed_signoz_index_v3) and its 'Latency Between Spans in Trace' pattern, but has NOT been executed against a live SigNoz + real dogfood traffic in this environment — verify column/table names still match on import and adjust if your SigNoz version's schema has moved on.",
+      "bucketCount": 30,
+      "legendPosition": "bottom",
+      "yAxisUnit": "ms",
+      "softMin": 0,
+      "softMax": 0,
+      "query": {
+        "queryType": "clickhouse_sql",
+        "builder": null,
+        "promql": null,
+        "clickhouse_sql": [
+          {
+            "name": "A",
+            "disabled": false,
+            "legend": "{{quantile}}",
+            "query": "WITH approval_pairs AS (\n  SELECT\n    attributes_string['knotrust.approval_id'] AS approval_id,\n    minIf(timestamp, name IN ('knotrust.approval.requested', 'knotrust.approval.pending')) AS requested_ts,\n    maxIf(timestamp, name IN ('knotrust.approval.approved', 'knotrust.approval.denied', 'knotrust.approval.expired', 'knotrust.approval.cancelled')) AS terminal_ts\n  FROM signoz_traces.distributed_signoz_index_v3\n  WHERE name LIKE 'knotrust.approval.%'\n    AND attributes_string['knotrust.approval_id'] != ''\n    AND ts_bucket_start BETWEEN $start_timestamp - 1800 AND $end_timestamp\n    AND timestamp BETWEEN {{.start_datetime}} AND {{.end_datetime}}\n  GROUP BY approval_id\n  HAVING requested_ts != toDateTime64(0, 9) AND terminal_ts != toDateTime64(0, 9) AND terminal_ts > requested_ts\n),\nresolved AS (\n  SELECT\n    toStartOfInterval(terminal_ts, INTERVAL 5 MINUTE) AS interval,\n    toFloat64(toUnixTimestamp64Nano(terminal_ts) - toUnixTimestamp64Nano(requested_ts)) / 1000000 AS resolution_ms\n  FROM approval_pairs\n)\nSELECT interval AS ts, 'p50' AS quantile, quantile(0.5)(resolution_ms) AS value FROM resolved GROUP BY interval\nUNION ALL\nSELECT interval AS ts, 'p95' AS quantile, quantile(0.95)(resolution_ms) AS value FROM resolved GROUP BY interval\nUNION ALL\nSELECT interval AS ts, 'p99' AS quantile, quantile(0.99)(resolution_ms) AS value FROM resolved GROUP BY interval\nORDER BY ts ASC, quantile ASC"
+          }
+        ]
+      },
+      "selectedLogFields": [
+        { "fieldContext": "log", "name": "timestamp", "signal": "logs", "type": "log" },
+        { "fieldContext": "log", "name": "body", "signal": "logs", "type": "log" }
+      ],
+      "selectedTracesFields": [
+        { "fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces" },
+        { "fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces" },
+        { "fieldContext": "span", "name": "duration_nano", "signal": "traces" },
+        { "fieldContext": "span", "name": "http_method", "signal": "traces" },
+        { "fieldContext": "span", "name": "response_status_code", "signal": "traces" }
+      ],
+      "thresholds": null,
+      "contextLinks": { "linksData": null }
+    }
+  ]
+}

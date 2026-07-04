@@ -1,0 +1,45 @@
+{
+  "name": "tier-cap-violation",
+  "description": "An otherwise-fully-valid durable grant (signature, temporal window, principal/agent/tool/scope, conditions all pass) whose own tierCap (\"sensitive\") is below the resolvedTier (\"critical\") — an active self-escalation attempt. Durable (no callHash), so R35's call-hash gate never applies here; this isolates the tier-cap check alone.",
+  "token": "eyJhbGciOiJFZERTQSIsInR5cCI6Imtub3RydXN0LWdyYW50K2p3cyIsImtpZCI6Ik1KZmkzdUxMU2pTMU9FRE4ifQ.eyJ2IjoxLCJqdGkiOiIwMUdPTERHUkFOVDAwMDYiLCJpYXQiOjE3OTk5OTkwMDAsImV4cCI6MTgwMjU5MTAwMCwiaXNzIjoidXNlcjphdmlqZWV0dDAwN0BnbWFpbC5jb20iLCJrIjoiZHVyYWJsZSIsInN1IjpmYWxzZSwicCI6eyJ0eXBlIjoidXNlciIsImlkIjoiYXZpamVldHQwMDdAZ21haWwuY29tIn0sImFnIjp7ImlkIjoiY29kZXgtY2xpIiwidHlwZSI6ImFpX2FnZW50In0sInQiOiJzdHJpcGUuY3JlYXRlX3JlZnVuZCIsInMiOnsicmVzb3VyY2VUeXBlIjoic3RyaXBlX2NoYXJnZSIsImlkUGF0dGVybiI6ImNoXyoifSwiciI6InNlbnNpdGl2ZSIsImVzIjoicGVyc29uYWwifQ.J_fwm0o_J3nw3rZXks0HsPkfMojzVFPm3BWWZbbw0uKPCHAlQGyFnYhsL_N1gjzAF2v5wn07JuWLIjyqObCuCQ",
+  "verifyContext": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01GVGRANT0000000TIERCAPRQ",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": {
+        "type": "user",
+        "id": "avijeett007@gmail.com"
+      },
+      "action": {
+        "name": "stripe.create_refund"
+      },
+      "resource": {
+        "type": "stripe_charge",
+        "id": "ch_3PabcXYZ"
+      },
+      "context": {
+        "agent": {
+          "id": "codex-cli",
+          "type": "ai_agent"
+        },
+        "env": {
+          "time": "2026-07-03T00:00:00Z",
+          "surfaceLocal": true
+        }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "resolvedTier": "critical",
+    "nowEpochSeconds": 1800000000,
+    "resolveKid": "primary"
+  },
+  "expected": {
+    "ok": false,
+    "reasonCode": "tier_cap_violation"
+  }
+}

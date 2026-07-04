@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="knotrust-mark-dark-title">
+  <title id="knotrust-mark-dark-title">KnoTrust</title>
+  <!--
+    KnoTrust mark — dark-surface variant.
+    Identical geometry to logo.svg; the ink loop (#14131C) is swapped for the
+    paper token (#F5F4F0) so the mark stays legible on dark backgrounds
+    (app chrome, dark READMEs, terminal-themed docs). See /BRAND.md.
+  -->
+  <g stroke-linecap="round" fill="none" transform="rotate(32 256 256)">
+    <path d="M 276.22 364.71 A 140 140 0 1 1 276.22 147.29" stroke="#F5F4F0" stroke-width="70"/>
+    <path d="M 235.78 147.29 A 140 140 0 1 1 235.78 364.71" stroke="#E7A93A" stroke-width="70"/>
+    <path d="M 226.73 121.46 A 140 140 0 0 1 281.79 152.06" stroke="#F5F4F0" stroke-width="70"/>
+  </g>
+</svg>

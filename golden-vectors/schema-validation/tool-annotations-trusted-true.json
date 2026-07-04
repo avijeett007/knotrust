@@ -1,0 +1,50 @@
+{
+  "name": "tool-annotations-trusted-true",
+  "description": "One of the four E2-T1 negatives: `toolAnnotations.trusted: true`. The field is a literal `false` at the type level (a constant reminder that server-advertised annotations are self-declared and MAY be a lie, brief §C5) — the schema never accepts `true` as a value, only rejects the whole object if it claims otherwise.",
+  "target": "decision-request.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q3M9X7R2K4V6B0YHTDC1A",
+    "timestamp": "2026-07-03T14:32:10.221Z",
+    "subject": {
+      "type": "user",
+      "id": "avijeett007@gmail.com",
+      "properties": { "authn": "os_session", "tenant": "kno2gether" }
+    },
+    "action": {
+      "name": "github.create_issue",
+      "properties": { "mcpMethod": "tools/call" }
+    },
+    "resource": {
+      "type": "github_repo",
+      "id": "kno2gether/openclaw",
+      "properties": { "title": "Race in proxy shutdown", "labels": ["bug"] }
+    },
+    "context": {
+      "agent": {
+        "id": "claude-desktop",
+        "type": "ai_agent",
+        "clientId": "mcp-client-abc",
+        "model": "claude-opus-4-x"
+      },
+      "env": { "time": "2026-07-03T14:32:10Z", "surfaceLocal": true }
+    },
+    "surface": {
+      "kind": "stdio_proxy",
+      "instanceId": "px_01JZ8Q3",
+      "server": "github-mcp",
+      "specVersion": "2025-11-25",
+      "transport": "stdio"
+    },
+    "toolAnnotations": {
+      "trusted": true,
+      "source": "server_advertised",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "capturedAt": "2026-07-03T14:30:00Z"
+    }
+  },
+  "valid": false
+}

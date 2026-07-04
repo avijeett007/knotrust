@@ -1,0 +1,40 @@
+{
+  "name": "@knotrust/test-harness",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fake-server": {
+      "types": "./dist/fake-server/index.d.ts",
+      "default": "./dist/fake-server/index.js"
+    },
+    "./fake-client": {
+      "types": "./dist/fake-client/index.d.ts",
+      "default": "./dist/fake-client/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "pretest": "tsc",
+    "test": "vitest run --config ../../vitest.config.ts --project harness",
+    "lint": "biome check --error-on-warnings ."
+  },
+  "dependencies": {
+    "@knotrust/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:"
+  }
+}

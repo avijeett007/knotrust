@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knotrust.dev/schemas/denial-envelope.v1.schema.json",
+  "title": "DenialEnvelope",
+  "description": "The model-visible `knotrust` block of a synthesized tools/call denial result (P0-E5-T4, rulings R74/R75/R79). This schema validates ONLY the structural shape — `additionalProperties: false` and a closed `reasonCode` enum keep the object from ever carrying a field shaped to hold policy internals or an approval token/URL. It CANNOT forbid a token hiding inside `humanApproval.hint`'s free-text string value; that is the job of the separate, reusable frame-scan assertion (`@knotrust/test-harness`'s `assertNoLeakedSecrets`/`findLeaks`, invariant §4.3) that scans actual rendered content for token-shaped and policy-internal-shaped substrings. Schema = structure; frame-scan = content. Every envelope `buildDenialEnvelope` (packages/proxy-stdio/src/denial-envelope.ts) produces round-trips through this schema.",
+  "type": "object",
+  "properties": {
+    "outcome": {
+      "enum": ["deny", "pending_approval", "deferred_not_eligible"],
+      "description": "Never \"allow\" — an allow is transparent pass-through with no envelope of ours."
+    },
+    "decisionId": {
+      "type": "string",
+      "description": "ULID; the audit anchor (packages/core's DecisionResponse.decisionId, carried through verbatim)."
+    },
+    "tierClass": {
+      "enum": ["routine", "sensitive", "critical"],
+      "description": "The resolved tier — safe to surface verbatim: a closed 3-value enum, never a policy id or rule name."
+    },
+    "reasonCode": {
+      "enum": [
+        "blocked_needs_grant",
+        "blocked_needs_approval",
+        "blocked_by_policy",
+        "unavailable",
+        "not_eligible_here"
+      ],
+      "description": "The R75 SAFE-subset mapping of the internal reasonCode — never the internal machine-stable code itself (e.g. never \"tier_cap_violation\", \"envelope_deny\", \"no_grant_sensitive\"). toSafeReasonCode() is the exhaustive, typechecked mapping function; the full internal reasonCode goes to the audit layer only."
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "humanApproval": {
+      "type": "object",
+      "description": "The ONLY hint about how a human unblocks this call — a channel name, never a URL or token.",
+      "properties": {
+        "possible": { "type": "boolean" },
+        "hint": {
+          "type": "string",
+          "description": "Fixed-template prose (e.g. \"Approve via the KnoTrust prompt or `knotrust approvals`\"). Free text — this schema cannot forbid a token hiding inside it; see the frame-scan note above."
+        }
+      },
+      "required": ["possible", "hint"],
+      "additionalProperties": false
+    },
+    "requestable": {
+      "type": "object",
+      "description": "Present only for a requestable sensitive-tier deny (no covering grant). `how` names the tool/server by NAME ONLY — never an argument value, never a token/URL.",
+      "properties": {
+        "how": {
+          "type": "string",
+          "description": "Exact CLI invocation template, e.g. \"knotrust grant --tool <tool> --server <server>\"."
+        }
+      },
+      "required": ["how"],
+      "additionalProperties": false
+    },
+    "approvalId": {
+      "type": "string",
+      "description": "Opaque approval-task handle id (e.g. \"apr_<ULID>\") when the decision carries one. Never an approval TOKEN (§I2.2) — an id is a lookup key with no authority of its own; a token is bearer authority and never appears here or anywhere else model-visible."
+    },
+    "auditRef": {
+      "type": "string",
+      "description": "Where the human/admin finds the full rationale in the audit log (today: the same value as decisionId, the audit anchor)."
+    }
+  },
+  "required": [
+    "outcome",
+    "decisionId",
+    "tierClass",
+    "reasonCode",
+    "retryable",
+    "humanApproval",
+    "auditRef"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,50 @@
+{
+  "name": "single-use-ephemeral-valid",
+  "description": "An ephemeral, single-use grant whose callHash matches the executing call's SARC-normal-form hash exactly — the TOCTOU-closing positive path (su: true, ch bound and matching).",
+  "token": "eyJhbGciOiJFZERTQSIsInR5cCI6Imtub3RydXN0LWdyYW50K2p3cyIsImtpZCI6Ik1KZmkzdUxMU2pTMU9FRE4ifQ.eyJ2IjoxLCJqdGkiOiIwMUdPTERHUkFOVDAwMDQiLCJpYXQiOjE3OTk5OTk5OTAsImV4cCI6MTgwMDAwMDExMCwiaXNzIjoidXNlcjphdmlqZWV0dDAwN0BnbWFpbC5jb20iLCJrIjoiZXBoZW1lcmFsIiwic3UiOnRydWUsInAiOnsidHlwZSI6InVzZXIiLCJpZCI6ImF2aWplZXR0MDA3QGdtYWlsLmNvbSJ9LCJhZyI6eyJpZCI6ImNvZGV4LWNsaSIsInR5cGUiOiJhaV9hZ2VudCJ9LCJ0Ijoic3RyaXBlLmNyZWF0ZV9yZWZ1bmQiLCJzIjp7InJlc291cmNlVHlwZSI6InN0cmlwZV9jaGFyZ2UiLCJpZFBhdHRlcm4iOiJjaF8zUGFiY1hZWiJ9LCJyIjoiY3JpdGljYWwiLCJlcyI6InBlcnNvbmFsIiwiY2giOiJzaGEyNTY6YjNkODE0NzI4YWEwODYyNDQzZTY0NDY0YTAzYjc2YTdkZDQ0Nzg5N2FiNzYwMDdmNGFiMGM5MmNiMzY5NzA0YSJ9.dxC67nSVfsnUcNvwT8jthjy_kyHw-qDbL3v57Kv8G-pxgCK3du7H4v4ts8nKm-GZCqUw1Rjc6frryJTNA_qmBQ",
+  "verifyContext": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01GVGRANT0000000EPHEMEOK1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": {
+        "type": "user",
+        "id": "avijeett007@gmail.com"
+      },
+      "action": {
+        "name": "stripe.create_refund"
+      },
+      "resource": {
+        "type": "stripe_charge",
+        "id": "ch_3PabcXYZ"
+      },
+      "context": {
+        "agent": {
+          "id": "codex-cli",
+          "type": "ai_agent"
+        },
+        "env": {
+          "time": "2026-07-03T00:00:00Z",
+          "surfaceLocal": true
+        }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "resolvedTier": "critical",
+    "nowEpochSeconds": 1800000000,
+    "callHash": "sha256:b3d814728aa0862443e64464a03b76a7dd447897ab76007f4ab0c92cb369704a",
+    "resolveKid": "primary"
+  },
+  "expected": {
+    "ok": true,
+    "claims": {
+      "jti": "01GOLDGRANT0004",
+      "kind": "ephemeral",
+      "tier": "critical"
+    }
+  }
+}

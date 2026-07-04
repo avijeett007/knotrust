@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knotrust.dev/schemas/decision.v1.schema.json",
+  "$comment": "Timestamps are RFC 3339-profiled (ADR-0017); validators in every language MUST assert format: date-time.",
+  "title": "DecisionResponse",
+  "description": "KnoTrust DecisionResponse contract v1 (P0-E2-T1). Language-neutral mirror of packages/core/src/contract.ts's DecisionResponse, Outcome, ApprovalState, and ApprovalHandleRef. The core returns exactly four outcomes ([KNOTRUST], stable; brief §E2): allow, deny, pending_approval (AARP-shaped task handle; AARP's mechanism is called \"Requestable Denial\", the draft's own front matter abbreviates the profile \"ARAP\"), deferred_not_eligible. AuthZEN 1.0's core decision is a bare boolean [STANDARD]; these two extra outcomes are translated only at adapters.",
+  "type": "object",
+  "properties": {
+    "contractVersion": { "const": "1.0" },
+    "requestId": { "type": "string" },
+    "decisionId": { "type": "string", "description": "ULID; the audit anchor." },
+    "outcome": { "$ref": "#/$defs/Outcome" },
+    "tier": { "enum": ["routine", "sensitive", "critical"] },
+    "reasonCode": {
+      "type": "string",
+      "description": "Machine-stable, e.g. \"no_grant_critical\", \"policy_deny\"."
+    },
+    "reasonUser": { "type": "string", "description": "Model-facing, injection-conscious." },
+    "reasonAdmin": {
+      "type": "string",
+      "description": "Audit-only; may name policy ids, matched rules."
+    },
+    "approval": {
+      "description": "Present iff outcome === \"pending_approval\".",
+      "$ref": "#/$defs/ApprovalHandleRef"
+    },
+    "requestable": {
+      "description": "Present iff outcome === \"deny\" and the denial is requestable (sensitive tier, no covering grant): actionable, injection-conscious guidance — never policy internals. (R9, P0-E2-T2)",
+      "type": "object",
+      "properties": {
+        "how": {
+          "type": "string",
+          "description": "Exact CLI invocation template, e.g. \"knotrust grant --tool <tool> --server <server>\"."
+        }
+      },
+      "required": ["how"],
+      "additionalProperties": false
+    },
+    "cache": { "$ref": "#/$defs/Cache" },
+    "evaluatedBy": { "enum": ["L0", "cedar", "authzen_http", "opa", "grant"] },
+    "latencyMs": { "type": "number" }
+  },
+  "required": [
+    "contractVersion",
+    "requestId",
+    "decisionId",
+    "outcome",
+    "tier",
+    "reasonCode",
+    "cache",
+    "evaluatedBy",
+    "latencyMs"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Outcome": {
+      "enum": ["allow", "deny", "pending_approval", "deferred_not_eligible"]
+    },
+    "Cache": {
+      "type": "object",
+      "properties": {
+        "hit": { "type": "boolean" },
+        "ttlSeconds": { "type": "number" }
+      },
+      "required": ["hit"],
+      "additionalProperties": false
+    },
+    "ApprovalState": {
+      "description": "Architecture §6.1 approval orchestrator lifecycle enum, verbatim.",
+      "enum": ["requested", "pending", "approved", "denied", "expired", "cancelled"]
+    },
+    "ApprovalHandleRef": {
+      "description": "Core-side reference to an approval task handle (maps to AARP task handle at the adapter).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "\"apr_<ULID>\"." },
+        "state": { "$ref": "#/$defs/ApprovalState" },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601; deadline after which the approval resolves as deny."
+        }
+      },
+      "required": ["id", "state"],
+      "additionalProperties": false
+    }
+  }
+}

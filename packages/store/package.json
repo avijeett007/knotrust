@@ -1,0 +1,34 @@
+{
+  "name": "@knotrust/store",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project store",
+    "lint": "biome check --error-on-warnings .",
+    "generate:schema": "tsc && node scripts/generate-config-schema.mjs"
+  },
+  "dependencies": {
+    "@knotrust/core": "workspace:*",
+    "c12": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:",
+    "ajv": "catalog:"
+  }
+}

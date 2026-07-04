@@ -1,0 +1,49 @@
+{
+  "name": "tier-cap-violation-over-explicit-allow",
+  "description": "R15 ratification: a sensitive-tier tool has a source: \"user\" config entry with explicitAllow: true (which, alone, would allow via explicit_config_allow), but a covering grant is ALSO present whose own tierCap is \"routine\" — below the resolved tier. That grant is an active self-escalation attempt (someone/something offered a grant claiming less authority than the action requires), and tier_cap_violation is checked before the engine ever asks whether an explicit-allow fall-through exists, so it wins outright: a decisive, loud deny at layer 3, even though the config alone would have allowed. This is deliberate fail-closed behavior — an anomalous grant is surfaced as tier_cap_violation, never silently papered over by a legitimate-looking config allow. Contrast with the no-grant baseline under the identical tierPolicy (packages/core/src/precedence.test.ts), which has no grant to raise the anomaly at all and resolves allow/explicit_config_allow at layer 4 — proving the grant's mere presence, not the config, is what flips the outcome.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000TIERCAPX1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "github.create_issue" },
+      "resource": { "type": "github_repo", "id": "kno2gether/openclaw" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "github-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "github.create_issue": {
+          "tier": "sensitive",
+          "source": "user",
+          "explicitAllow": true
+        }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "routine",
+        "exp": 1800001000,
+        "jti": "01GRANT_SELF_ESC_OVER_ALLOW"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "tier_cap_violation",
+    "tier": "sensitive",
+    "precedenceLayer": 3,
+    "cacheEligible": true
+  }
+}

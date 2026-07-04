@@ -1,0 +1,42 @@
+{
+  "name": "explicit-config-allow",
+  "description": "R52 coverage-completeness addition (added at freeze, P0-E3-T5 — the corpus was missing a positive vector for this reason code): layer 4 tier default — a sensitive tool with NO covering grant, but a source: \"user\" config entry with explicitAllow: true, allows via explicit_config_allow.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000EXPLALOW1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "notion.update_page" },
+      "resource": { "type": "notion_page", "id": "page_123" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "notion-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "notion.update_page": {
+          "tier": "sensitive",
+          "source": "user",
+          "explicitAllow": true
+        }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "coveringGrants": [],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "allow",
+    "reasonCode": "explicit_config_allow",
+    "tier": "sensitive",
+    "precedenceLayer": 4,
+    "cacheEligible": true
+  }
+}

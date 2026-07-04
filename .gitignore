@@ -1,0 +1,25 @@
+# Session/tooling state — not part of the planning corpus
+.remember/
+.code-review-graph/
+.superpowers/
+.cache_ggshield
+
+# Build artifacts
+node_modules/
+dist/
+.turbo/
+*.log
+.DS_Store
+*.tsbuildinfo
+coverage/
+
+# prepack/postpack backup of package.json (packages/cli, P0-E1-T3) — crash
+# recovery file for scripts/pack-manifest.mjs, never committed.
+package.json.bak
+
+# Generated bench run output (test/bench, P0-E9-T3) — the real measured
+# numbers are transcribed into docs/03-engineering/latency-budgets.md; this
+# raw JSON is a convenience artifact of `pnpm --filter @knotrust/bench bench`,
+# regenerated on every run, never committed.
+test/bench/results/
+

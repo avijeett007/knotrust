@@ -1,0 +1,22 @@
+{
+  "name": "knotrust-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "turbo": "^2.10.2",
+    "@biomejs/biome": "catalog:",
+    "vitest": "catalog:"
+  }
+}

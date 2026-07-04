@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knotrust.dev/schemas/config.v1.schema.json",
+  "title": "KnotrustConfig",
+  "description": "KnoTrust on-disk config v1 (P0-E4-T2, rulings R44-R47). Language-neutral mirror of packages/store/src/config.ts's KnotrustConfigSchema (zod). Loaded via c12 (jiti rides inside c12) from knotrust.config.ts|yaml|json — all three equally first-class and semantically interchangeable. `scope: \"org\"` parses and is accepted but inert in Phase 0 (personal-only; schema-forward for Phase 2). A ToolEntry's `mapping` is shaped after COAZ's `x-coaz-mapping` extension (COAZ WG Draft 1) but KnoTrust's own P0 mapping language is plain dot-path argument references, never CEL or the COAZ wire form directly (invariant §E6) — see the `mapping` property's own description. This schema reflects the INPUT (authoring) shape: fields with a `default` are optional here, exactly as an author may omit them from a real config file.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "scope": {
+      "default": "personal",
+      "type": "string",
+      "enum": [
+        "personal",
+        "org"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "subjectId": {
+          "type": "string"
+        },
+        "subjectType": {
+          "type": "string",
+          "enum": [
+            "user",
+            "service"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "servers": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "tools": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "tier": {
+                  "type": "string",
+                  "enum": [
+                    "routine",
+                    "sensitive",
+                    "critical"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "annotation",
+                    "pack",
+                    "user"
+                  ]
+                },
+                "explicitAllow": {
+                  "type": "boolean"
+                },
+                "explicitDeny": {
+                  "type": "boolean"
+                },
+                "mapping": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string"
+                    },
+                    "resourceId": {
+                      "type": "string"
+                    },
+                    "properties": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Shaped after COAZ's \"x-coaz-mapping\" extension (AuthZEN/COAZ WG Draft 1 — an early, unstable spec). KnoTrust's own P0 mapping language is plain dot-path references into tool-call arguments (e.g. \"arguments.charge_id\"), NOT CEL and NOT the COAZ wire shape verbatim — CEL and the real COAZ wire format stay behind an adapter boundary (invariant §E6). This shape is defined and validated by P0-E4-T2 only; resolving it against real arguments to build a DecisionRequest resource is P0-E5-T3's job."
+                }
+              },
+              "required": [
+                "tier",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "unknownToolTier": {
+      "default": "sensitive",
+      "type": "string",
+      "enum": [
+        "sensitive",
+        "critical"
+      ]
+    },
+    "envelope": {
+      "type": "object",
+      "properties": {
+        "denyTools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forceApprovalTiers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "routine",
+              "sensitive",
+              "critical"
+            ]
+          }
+        },
+        "forceApprovalTools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tierFloors": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "routine",
+              "sensitive",
+              "critical"
+            ]
+          }
+        },
+        "grantCeiling": {
+          "type": "string",
+          "enum": [
+            "routine",
+            "sensitive",
+            "critical"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "failOpen": {
+      "type": "object",
+      "properties": {
+        "routine": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "approvalTimeoutSeconds": {
+      "default": 300,
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "cacheTtlOverrides": {
+      "type": "object",
+      "properties": {
+        "routine": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sensitive": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "telemetryExport": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "serviceName": {
+          "default": "knotrust",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version"
+  ],
+  "additionalProperties": false
+}

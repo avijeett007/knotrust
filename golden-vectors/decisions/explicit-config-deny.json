@@ -1,0 +1,49 @@
+{
+  "name": "explicit-config-deny",
+  "description": "A source: \"user\" config entry with explicitDeny: true is a decisive deny that wins over a valid, otherwise-covering grant. Precedence layer 2.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000EXPLDENY1",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "filesystem.delete_file" },
+      "resource": { "type": "file", "id": "/tmp/example.txt" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "filesystem-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "filesystem.delete_file": {
+          "tier": "sensitive",
+          "source": "user",
+          "explicitDeny": true
+        }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "sensitive",
+        "exp": 1800001000,
+        "jti": "01GRANT_WOULD_HAVE_ALLOWED"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "explicit_config_deny",
+    "tier": "sensitive",
+    "precedenceLayer": 2,
+    "cacheEligible": true
+  }
+}

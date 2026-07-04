@@ -1,0 +1,45 @@
+{
+  "name": "self-escalation-tier-cap-violation",
+  "description": "Plan-mandated acceptance case: a grant claiming tier cap \"routine\" on a critical tool is an active self-escalation attempt — decisive deny (tier_cap_violation), never a silent fall-through to pending_approval. Precedence layer 3.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000CAPVIOL01",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "stripe.create_refund" },
+      "resource": { "type": "stripe_charge", "id": "ch_3PabcXYZ" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "stripe-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "stripe.create_refund": { "tier": "critical", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "routine",
+        "exp": 1800001000,
+        "jti": "01GRANT_SELF_ESCALATE"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "tier_cap_violation",
+    "tier": "critical",
+    "precedenceLayer": 3,
+    "cacheEligible": false
+  }
+}

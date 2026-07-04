@@ -1,0 +1,19 @@
+{
+  "name": "arguments-absent-vs-null",
+  "description": "A request with NO context.arguments and NO resource.properties. Locks the null-for-absent rule: absent context.arguments serializes as arguments:null (identical to an explicit null), and absent resource.properties serializes as properties:null. The companion sarc-vectors test asserts absent and explicit-null hash identically.",
+  "request": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8QARGSABSENT00000001",
+    "timestamp": "2026-07-03T00:00:00.000Z",
+    "subject": { "type": "user", "id": "u@example.com" },
+    "action": { "name": "fs.read_file" },
+    "resource": { "type": "file", "id": "/tmp/x.txt" },
+    "context": {
+      "agent": { "id": "cli-1", "type": "workload" },
+      "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+    },
+    "surface": { "kind": "sdk", "instanceId": "sdk_f1" }
+  },
+  "canonical": "{\"action\":\"fs.read_file\",\"agent\":\"cli-1\",\"arguments\":null,\"resource\":{\"id\":\"/tmp/x.txt\",\"properties\":null,\"type\":\"file\"},\"subject\":\"u@example.com\",\"v\":1}",
+  "hash": "sha256:424be78108f473c8d5522727f1666b6d41dee96f5e120d388ae4c18046ef7c4d"
+}

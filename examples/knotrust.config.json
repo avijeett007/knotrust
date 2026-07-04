@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "scope": "personal",
+  "identity": {
+    "subjectId": "avijeett007@gmail.com",
+    "subjectType": "user"
+  },
+  "servers": {
+    "github-mcp": {
+      "tools": {
+        "github.create_issue": {
+          "tier": "routine",
+          "source": "annotation"
+        },
+        "github.close_issue": {
+          "tier": "sensitive",
+          "source": "pack",
+          "mapping": {
+            "resourceType": "github_issue",
+            "resourceId": "arguments.issue_number",
+            "properties": {
+              "repo": "arguments.repo"
+            }
+          }
+        },
+        "github.delete_repo": {
+          "tier": "critical",
+          "source": "user",
+          "explicitDeny": true
+        }
+      }
+    }
+  },
+  "unknownToolTier": "sensitive",
+  "envelope": {
+    "tierFloors": {
+      "github.create_issue": "sensitive"
+    }
+  },
+  "approvalTimeoutSeconds": 300,
+  "cacheTtlOverrides": {
+    "sensitive": 30
+  }
+}

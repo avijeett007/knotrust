@@ -1,0 +1,31 @@
+{
+  "name": "@knotrust/adversarial-tests",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "pretest": "tsc",
+    "test": "vitest run --config ../../vitest.config.ts --project adversarial",
+    "lint": "biome check --error-on-warnings ."
+  },
+  "dependencies": {
+    "@knotrust/approval": "workspace:*",
+    "@knotrust/core": "workspace:*",
+    "@knotrust/grants": "workspace:*",
+    "@knotrust/proxy-stdio": "workspace:*",
+    "@knotrust/store": "workspace:*",
+    "@knotrust/test-harness": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:"
+  }
+}

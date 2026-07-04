@@ -1,0 +1,46 @@
+{
+  "name": "positive-stripe-create-refund",
+  "description": "Architecture §2 worked example (embedded verbatim, matching packages/core/src/contract.test.ts's stripeCreateRefundRequest fixture): a critical-tier stripe.create_refund call that escalates to a human — a fully-populated, schema-valid DecisionRequest.",
+  "target": "decision-request.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q4T0F5N8P2Q7C3WERKD9B",
+    "timestamp": "2026-07-03T14:40:02.005Z",
+    "subject": {
+      "type": "user",
+      "id": "avijeett007@gmail.com",
+      "properties": { "authn": "os_session", "tenant": "kno2gether" }
+    },
+    "action": {
+      "name": "stripe.create_refund",
+      "properties": { "mcpMethod": "tools/call" }
+    },
+    "resource": {
+      "type": "stripe_charge",
+      "id": "ch_3PabcXYZ",
+      "properties": {
+        "amount": 42000,
+        "currency": "usd",
+        "reason": "requested_by_customer"
+      }
+    },
+    "context": {
+      "agent": { "id": "codex-cli", "type": "ai_agent", "clientId": "codex-mcp" },
+      "env": { "time": "2026-07-03T14:40:01Z", "surfaceLocal": true }
+    },
+    "surface": {
+      "kind": "stdio_proxy",
+      "instanceId": "px_01JZ8Q4",
+      "server": "stripe-mcp",
+      "specVersion": "2025-11-25",
+      "transport": "stdio"
+    },
+    "toolAnnotations": {
+      "trusted": false,
+      "source": "server_advertised",
+      "destructiveHint": true,
+      "readOnlyHint": false
+    }
+  },
+  "valid": true
+}

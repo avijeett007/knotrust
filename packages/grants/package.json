@@ -1,0 +1,36 @@
+{
+  "name": "@knotrust/grants",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project grants",
+    "lint": "biome check --error-on-warnings .",
+    "generate:golden-vectors": "node scripts/generate-golden-grant-vectors.mjs"
+  },
+  "dependencies": {
+    "@knotrust/core": "workspace:*",
+    "@knotrust/store": "workspace:*",
+    "@noble/curves": "catalog:"
+  },
+  "optionalDependencies": {
+    "@napi-rs/keyring": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "vitest": "catalog:"
+  }
+}

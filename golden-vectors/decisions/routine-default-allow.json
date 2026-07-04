@@ -1,0 +1,38 @@
+{
+  "name": "routine-default-allow",
+  "description": "Layer 4 tier default: a routine tool with no envelope entanglement is an unconditional allow.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000ROUTINE01",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "notes.create" },
+      "resource": { "type": "note", "id": "note_1" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "notes-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "notes.create": { "tier": "routine", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "coveringGrants": [],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "allow",
+    "reasonCode": "routine_default_allow",
+    "tier": "routine",
+    "precedenceLayer": 4,
+    "cacheEligible": true
+  }
+}

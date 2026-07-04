@@ -1,0 +1,50 @@
+{
+  "name": "positive-github-create-issue",
+  "description": "Architecture §2 worked example (embedded verbatim, matching packages/core/src/contract.test.ts's githubCreateIssueRequest fixture): a routine/sensitive github.create_issue call with full toolAnnotations, subject.properties, and action/resource properties — a fully-populated, schema-valid DecisionRequest.",
+  "target": "decision-request.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q3M9X7R2K4V6B0YHTDC1A",
+    "timestamp": "2026-07-03T14:32:10.221Z",
+    "subject": {
+      "type": "user",
+      "id": "avijeett007@gmail.com",
+      "properties": { "authn": "os_session", "tenant": "kno2gether" }
+    },
+    "action": {
+      "name": "github.create_issue",
+      "properties": { "mcpMethod": "tools/call" }
+    },
+    "resource": {
+      "type": "github_repo",
+      "id": "kno2gether/openclaw",
+      "properties": { "title": "Race in proxy shutdown", "labels": ["bug"] }
+    },
+    "context": {
+      "agent": {
+        "id": "claude-desktop",
+        "type": "ai_agent",
+        "clientId": "mcp-client-abc",
+        "model": "claude-opus-4-x"
+      },
+      "env": { "time": "2026-07-03T14:32:10Z", "surfaceLocal": true }
+    },
+    "surface": {
+      "kind": "stdio_proxy",
+      "instanceId": "px_01JZ8Q3",
+      "server": "github-mcp",
+      "specVersion": "2025-11-25",
+      "transport": "stdio"
+    },
+    "toolAnnotations": {
+      "trusted": false,
+      "source": "server_advertised",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "capturedAt": "2026-07-03T14:30:00Z"
+    }
+  },
+  "valid": true
+}

@@ -1,0 +1,19 @@
+{
+  "name": "subject-type-agent",
+  "description": "One of the four E2-T1 negatives: `subject.type` outside the AuthZEN union — \"agent\" is not \"user\" | \"service\" (COAZ mapping rule: AGENT identity lives at `context.agent`, never merged into `subject`, so `subject.type` never admits an agent-shaped value).",
+  "target": "decision-request.v1",
+  "value": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q0000000000000000000",
+    "timestamp": "2026-07-03T00:00:00.000Z",
+    "subject": { "type": "agent", "id": "not-a-valid-subject-type" },
+    "action": { "name": "filesystem.read_file" },
+    "resource": { "type": "file", "id": "/tmp/example.txt" },
+    "context": {
+      "agent": { "id": "knotrust-cli", "type": "workload" },
+      "env": { "time": "2026-07-03T00:00:00.000Z", "surfaceLocal": true }
+    },
+    "surface": { "kind": "sdk", "instanceId": "sdk_01JZ8Q0" }
+  },
+  "valid": false
+}

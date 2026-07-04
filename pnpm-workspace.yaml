@@ -1,0 +1,79 @@
+packages:
+  - "packages/*"
+  - "test/harness"
+  - "test/adversarial"
+  - "test/bench"
+
+# Dependency install-script (postinstall) allowlist. Default-deny posture for a
+# supply-chain-security product: no third-party build script runs unless listed
+# here. esbuild (pulled in by tsup, P0-E1-T3) is denied on purpose — its native
+# binary ships in the @esbuild/<platform> optional dependency, so tsup works
+# without running esbuild's postinstall.
+allowBuilds:
+  esbuild: false
+
+catalog:
+  typescript: "^6.0.3"
+  "@types/node": "^22.20.0"
+  vitest: "^4.1.9"
+  "@biomejs/biome": "^2.5.2"
+  tsup: "^8.5.1"
+  # JSON Schema (draft 2020-12) validator for the DecisionRequest/DecisionResponse
+  # round-trip tests (P0-E2-T1). devDependency of packages/core only.
+  ajv: "^8.20.0"
+  ajv-formats: "^3.0.1"
+  # Grant signing (P0-E3-T1/T2, brief §D, architecture §5.1): Ed25519 via the
+  # audited, pure-TS @noble/curves (no WASM/native-binary complications).
+  # dependency of packages/grants.
+  "@noble/curves": "^2.2.0"
+  # Identity key storage (P0-E3-T1, ratified brief §I2.1): OS keychain
+  # default-on where available, via the Rust-backed @napi-rs/keyring (never
+  # the archived `keytar`). optionalDependency of packages/grants — ships
+  # prebuilt binaries per-platform, no postinstall/build script (verified:
+  # neither this package nor its per-platform optionalDependencies run any
+  # install-time script, so no `allowBuilds` entry is needed), and must
+  # degrade gracefully to the file-fallback backend when unusable/missing.
+  "@napi-rs/keyring": "^1.3.0"
+  # Config loading (P0-E4-T2, brief §D): c12 (`name: "knotrust"`) loads
+  # `knotrust.config.ts`/`.yaml`/`.json` uniformly; jiti (TS-config
+  # execution) rides INSIDE c12 as its own dependency (R44) — this package
+  # never imports jiti directly. dependency of packages/store only. Pinned
+  # to the latest STABLE major (c12's own `latest` dist-tag is a 4.0.0-beta
+  # series; `3x` is the current stable major) rather than the beta.
+  c12: "^3.3.4"
+  # Config schema validation (P0-E4-T2, R44): zod v4's native JSON Schema
+  # export (`z.toJSONSchema`) is what generates the committed
+  # `golden-vectors/schemas/config.v1.schema.json` artifact. dependency of
+  # packages/store only.
+  zod: "^4.4.3"
+  # Real MCP 2025-11-25 JSON-RPC wire types + transports (P0-E11-T1, R53-R57):
+  # the fake server wraps the official low-level `Server` (tools/list,
+  # tools/call handlers) and both fake server + fake client reuse the SDK's
+  # `StdioServerTransport`/`StdioClientTransport`/`InMemoryTransport` for real
+  # framing, so the harness interoperates with whatever E5's proxy (built on
+  # the same SDK) actually speaks. devDependency of test/harness ONLY — this
+  # is test infrastructure, not production code, so it does not touch the
+  # @knotrust/core boundary gate (scripts/check-core-boundary.sh only greps
+  # packages/core/src). `LATEST_PROTOCOL_VERSION` in this version is
+  # "2025-11-25", matching ADR-0006's pinned baseline.
+  "@modelcontextprotocol/sdk": "^1.29.0"
+  # OpenTelemetry OTLP/HTTP exporter (P0-E8-T1, rulings R127-R131): standard,
+  # official OTel JS packages. `@opentelemetry/api` is the trace API surface
+  # (SpanKind/SpanStatusCode/Tracer); `@opentelemetry/sdk-trace-node` is the
+  # tracer provider + span processors; `@opentelemetry/resources` builds the
+  # `service.name` Resource attribute every exported span carries;
+  # `@opentelemetry/exporter-trace-otlp-http` is the OTLP/HTTP (JSON) sender.
+  # dependencies of packages/otel only — this is a USER-CONFIGURED, off-by-
+  # default export of the user's OWN audit stream, never product telemetry
+  # (PRD §11; see packages/otel's own module header for the verbatim
+  # statement). Pinned to each package's latest published version as of this
+  # task; `@opentelemetry/api`'s range is capped below 1.10.0 to match every
+  # other OTel package's own peerDependency ceiling on it.
+  "@opentelemetry/api": "^1.9.1"
+  "@opentelemetry/sdk-trace-node": "^2.9.0"
+  "@opentelemetry/resources": "^2.9.0"
+  "@opentelemetry/exporter-trace-otlp-http": "^0.220.0"
+
+minimumReleaseAgeExclude:
+  - '@clack/core@1.4.3'
+  - '@clack/prompts@1.7.0'

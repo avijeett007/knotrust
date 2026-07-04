@@ -1,0 +1,49 @@
+{
+  "name": "valid-durable",
+  "description": "A durable grant, minted with the primary test key, within its temporal window and covering the request's principal/agent/tool/scope/tier — the baseline ok:true case.",
+  "token": "eyJhbGciOiJFZERTQSIsInR5cCI6Imtub3RydXN0LWdyYW50K2p3cyIsImtpZCI6Ik1KZmkzdUxMU2pTMU9FRE4ifQ.eyJ2IjoxLCJqdGkiOiIwMUdPTERHUkFOVDAwMDAiLCJpYXQiOjE3OTk5OTkwMDAsImV4cCI6MTgwMjU5MTAwMCwiaXNzIjoidXNlcjphdmlqZWV0dDAwN0BnbWFpbC5jb20iLCJrIjoiZHVyYWJsZSIsInN1IjpmYWxzZSwicCI6eyJ0eXBlIjoidXNlciIsImlkIjoiYXZpamVldHQwMDdAZ21haWwuY29tIn0sImFnIjoiKiIsInQiOiJnaXRodWIuKiIsInMiOnsicmVzb3VyY2VUeXBlIjoiZ2l0aHViX3JlcG8iLCJpZFBhdHRlcm4iOiJrbm8yZ2V0aGVyLyoifSwiciI6InNlbnNpdGl2ZSIsImVzIjoicGVyc29uYWwifQ.7rH0-PDHtXTwHC4HDxJ8GQVqhSc4TI54bJ2ZArzpDnwpGmTXlfQ-uidPJplOTxzBHtG8FDt3WvvZaNJ99usVBw",
+  "verifyContext": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01GVGRANT0000000GITHUBREQ",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": {
+        "type": "user",
+        "id": "avijeett007@gmail.com"
+      },
+      "action": {
+        "name": "github.create_issue"
+      },
+      "resource": {
+        "type": "github_repo",
+        "id": "kno2gether/openclaw"
+      },
+      "context": {
+        "agent": {
+          "id": "claude-desktop",
+          "type": "ai_agent"
+        },
+        "env": {
+          "time": "2026-07-03T00:00:00Z",
+          "surfaceLocal": true
+        }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "github-mcp"
+      }
+    },
+    "resolvedTier": "sensitive",
+    "nowEpochSeconds": 1800000000,
+    "resolveKid": "primary"
+  },
+  "expected": {
+    "ok": true,
+    "claims": {
+      "jti": "01GOLDGRANT0000",
+      "kind": "durable",
+      "tier": "sensitive"
+    }
+  }
+}

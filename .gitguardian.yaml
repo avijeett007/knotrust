@@ -1,0 +1,19 @@
+secret:
+  ignored_matches:
+  - match: bf7c9b2b49520e6aab11851e735d6b3e348000174f71e1eac57765154ddf2fff
+    name: JSON Web Token - commit://staged/golden-vectors/grants/tier-cap-violation.json
+  - match: 3b1cba4afb862be2ee55036dcdacf5670ec43c086c576adbb8b25c432d3c99a6
+    name: JSON Web Token - commit://staged/golden-vectors/grants/valid-durable.json
+  - match: 38a97ff3b79abfabb2e73846c3fab39f4ceafe680df65cad01642c15dc188a7a
+    name: JSON Web Token - commit://staged/golden-vectors/grants/wrong-key.json
+  - match: 9bd71eb99f6714421e118697238b1209fb3fe13d4a96b392bb63448d29af0167
+    name: JSON Web Token - commit://staged/golden-vectors/grants/call-hash-mismatch.json
+  - match: 47d390ac37aa867f1061428d4ecad733ef1d586dcdc30f4501c14e6229dc8497
+    name: JSON Web Token - commit://staged/golden-vectors/grants/expired.json
+  - match: a43a54161be3806d72159b151e3b54e90796e83d301f7ae88bbc902bd40df5ac
+    name: JSON Web Token - commit://staged/golden-vectors/grants/scope-mismatch.json
+  - match: 2d78bafc82e42aa19bedcc5fd4ac51fffaeed1c2f45098dc158e8a85ab9e72f3
+    name: JSON Web Token - commit://staged/golden-vectors/grants/single-use-ephemeral-valid.json
+  - match: ace5b442b18dbd044787bcf0f6bd375e9230d0edba0311c3264bb0fb50d3fddf
+    name: JSON Web Token - commit://staged/golden-vectors/grants/tampered-signature.json
+version: 2

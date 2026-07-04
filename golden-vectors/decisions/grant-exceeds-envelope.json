@@ -1,0 +1,49 @@
+{
+  "name": "grant-exceeds-envelope",
+  "description": "R13 asymmetry: a grant whose native tierCap covers the resolved tier (sensitive) but is clamped below it by the admin envelope's grantCeiling (routine) is outside the envelope — treated as non-covering. Unlike an active self-escalation attempt (tier_cap_violation, always a loud immediate deny), this is \"the envelope working as designed\": with no explicit config allow to fall through to at layer 4, this grant was the sole basis for what would have been an allow, so the precedence engine surfaces the more diagnostic grant_exceeds_envelope reason directly at layer 3 rather than the generic layer-4 no_grant_sensitive. Contrast with the sensitive-tier + explicitAllow:true case (see packages/core/src/precedence.test.ts), where the same envelope-ceiling clamp instead falls through to layer 4 and allows via explicit_config_allow.",
+  "input": {
+    "request": {
+      "contractVersion": "1.0",
+      "requestId": "01PREC0000000000GRANTCEIL",
+      "timestamp": "2026-07-03T00:00:00.000Z",
+      "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+      "action": { "name": "github.create_issue" },
+      "resource": { "type": "github_repo", "id": "kno2gether/openclaw" },
+      "context": {
+        "agent": { "id": "claude-desktop", "type": "ai_agent" },
+        "env": { "time": "2026-07-03T00:00:00Z", "surfaceLocal": true }
+      },
+      "surface": {
+        "kind": "stdio_proxy",
+        "instanceId": "px_test",
+        "server": "github-mcp"
+      }
+    },
+    "tierPolicy": {
+      "tools": {
+        "github.create_issue": { "tier": "sensitive", "source": "user" }
+      },
+      "unknownToolTier": "sensitive"
+    },
+    "envelope": {
+      "scope": "personal",
+      "grantCeiling": "routine"
+    },
+    "coveringGrants": [
+      {
+        "kind": "durable",
+        "tierCap": "sensitive",
+        "exp": 1800001000,
+        "jti": "01GRANT_CEILING_CLAMPED"
+      }
+    ],
+    "nowEpochSeconds": 1800000000
+  },
+  "expected": {
+    "outcome": "deny",
+    "reasonCode": "grant_exceeds_envelope",
+    "tier": "sensitive",
+    "precedenceLayer": 3,
+    "cacheEligible": true
+  }
+}

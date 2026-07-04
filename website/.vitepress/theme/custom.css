@@ -1,0 +1,243 @@
+/*
+ * KnoTrust brand theme for VitePress.
+ * Token source of truth: /BRAND.md at the repo root. Ink + gold, not blue —
+ * gold reads as "signed / certified / hold for approval," which is what the
+ * product actually does to risky calls.
+ *
+ * VitePress toggles dark mode by adding a `dark` class to <html> (not a
+ * prefers-color-scheme media query), so brand tokens are re-declared under
+ * `html.dark` rather than `@media (prefers-color-scheme: dark)` — this keeps
+ * the in-page light/dark switcher authoritative, matching VitePress's own
+ * mechanism.
+ */
+
+:root {
+  /* ---- BRAND.md tokens, verbatim ---- */
+  --knot-ink: #14131c;
+  --knot-gold: #e7a93a;
+  --knot-paper: #f5f4f0;
+  --knot-surface-light: #ffffff;
+  --knot-surface-dark: #0b0b10;
+  --knot-ink-muted: #4b4a52;
+  --knot-mist: #9c9b97;
+  --knot-line: #e7e5df;
+  --knot-line-dark: #232229;
+  --knot-ghost: #1b1a22;
+
+  /*
+   * Derived, NOT in BRAND.md: a darkened, text-safe amber for interactive
+   * TEXT on light surfaces only (nav/sidebar active state, links, small UI
+   * accents). BRAND.md's own contrast table states true --knot-gold on
+   * --knot-surface-light is 2.1:1 and FAILS — "gold is for graphics/large
+   * accents on light backgrounds, never body text." VitePress's brand-1/2/3
+   * vars drive normal-size link and nav text, so true gold cannot be used
+   * there on light surfaces without failing WCAG. This keeps the gold
+   * *hue family* (so it still reads as "the brand") while passing AA at
+   * normal text sizes. On dark surfaces we use true --knot-gold throughout,
+   * per BRAND.md ("use --knot-gold freely for accents, links, and focus
+   * rings on dark surfaces").
+   */
+  --knot-gold-ink: #8a5a12;
+  --knot-focus: var(--knot-gold-ink);
+
+  --vp-c-bg: var(--knot-surface-light);
+  --vp-c-bg-alt: #faf9f6;
+  --vp-c-bg-soft: #f5f4f0;
+  --vp-c-bg-elv: #ffffff;
+
+  --vp-c-text-1: var(--knot-ink);
+  --vp-c-text-2: var(--knot-ink-muted);
+  --vp-c-text-3: #8a897f;
+
+  --vp-c-border: var(--knot-line);
+  --vp-c-divider: var(--knot-line);
+  --vp-c-gutter: var(--knot-line);
+
+  --vp-c-brand-1: var(--knot-gold-ink);
+  --vp-c-brand-2: var(--knot-gold-ink);
+  --vp-c-brand-3: var(--knot-gold-ink);
+  --vp-c-brand-soft: rgba(231, 169, 58, 0.14);
+
+  --vp-button-brand-text: #ffffff;
+
+  --vp-font-family-base:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --vp-font-family-mono:
+    ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+html.dark {
+  --vp-c-bg: var(--knot-surface-dark);
+  --vp-c-bg-alt: #101017;
+  --vp-c-bg-soft: #16151d;
+  --vp-c-bg-elv: #17161e;
+
+  --vp-c-text-1: var(--knot-paper);
+  --vp-c-text-2: var(--knot-mist);
+  --vp-c-text-3: #6f6e78;
+
+  --vp-c-border: var(--knot-line-dark);
+  --vp-c-divider: var(--knot-line-dark);
+  --vp-c-gutter: var(--knot-line-dark);
+
+  --vp-c-brand-1: var(--knot-gold);
+  --vp-c-brand-2: var(--knot-gold);
+  --vp-c-brand-3: var(--knot-gold);
+  --vp-c-brand-soft: rgba(231, 169, 58, 0.18);
+
+  --vp-button-brand-text: var(--knot-ink);
+  --knot-focus: var(--knot-gold);
+}
+
+/* Visible keyboard focus everywhere, in the brand's accent hue. */
+:focus-visible {
+  outline: 2px solid var(--knot-focus);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Home hero                                                               */
+/* ---------------------------------------------------------------------- */
+
+/* A quiet amber glow behind the hero on dark surfaces only — the one
+   decorative flourish this theme spends (frontend-design restraint: spend
+   boldness in one place). BRAND.md reserves the --knot-ghost texture for
+   dark surfaces only and never for content, so this stays purely
+   atmospheric, a pure CSS gradient (no asset reference, so it is base-path
+   safe under GitHub Pages' /knotrust/ subpath). */
+html.dark .VPHero {
+  position: relative;
+  isolation: isolate;
+}
+html.dark .VPHero::before {
+  content: "";
+  position: absolute;
+  inset: -10% -5% auto -5%;
+  height: 520px;
+  background: radial-gradient(
+    closest-side,
+    rgba(231, 169, 58, 0.14),
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.VPHero .image-container {
+  filter: none !important;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Feature cards — a quiet gold hover accent instead of the stock border    */
+/* ---------------------------------------------------------------------- */
+
+.VPFeature {
+  border-color: var(--vp-c-divider) !important;
+  transition: border-color 0.15s ease;
+}
+.VPFeature:hover {
+  border-color: var(--knot-gold) !important;
+}
+
+/* ---------------------------------------------------------------------- */
+/* "What KnoTrust is NOT" strip — deliberately plain, not a feature card,   */
+/* so it reads as an honest aside rather than more marketing copy.         */
+/* ---------------------------------------------------------------------- */
+
+.not-strip {
+  margin: 56px auto 8px;
+  max-width: 960px;
+  padding: 28px 32px 30px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: var(--vp-c-bg-soft);
+}
+.not-strip .not-strip-label {
+  display: block;
+  font-family: var(--vp-font-family-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  margin-bottom: 10px;
+}
+.not-strip h3 {
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+  font-size: 20px;
+}
+.not-strip ul {
+  margin: 0;
+  padding-left: 1.15em;
+}
+.not-strip li {
+  margin: 6px 0;
+  color: var(--vp-c-text-2);
+}
+.not-strip li strong {
+  color: var(--vp-c-text-1);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Risk-tier badges — used throughout the Guide/CLI/Security docs. Fill     */
+/* escalates with severity (outline -> soft gold -> solid ink/gold) rather  */
+/* than borrowing an unrelated red/amber/green convention, so the color     */
+/* system stays exactly the ink/gold pair BRAND.md specifies.               */
+/* ---------------------------------------------------------------------- */
+
+.tier {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 3px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid currentColor;
+  line-height: 1.6;
+}
+.tier-routine {
+  color: var(--vp-c-text-2);
+  border-color: var(--vp-c-divider);
+}
+.tier-sensitive {
+  color: var(--knot-gold-ink);
+  border-color: var(--knot-gold-ink);
+  background: var(--vp-c-brand-soft);
+}
+html.dark .tier-sensitive {
+  color: var(--knot-gold);
+  border-color: var(--knot-gold);
+}
+.tier-critical {
+  color: #ffffff;
+  background: var(--knot-ink);
+  border-color: var(--knot-ink);
+}
+html.dark .tier-critical {
+  background: var(--knot-gold);
+  color: var(--knot-ink);
+  border-color: var(--knot-gold);
+}
+
+/* Outcome badges (allow | deny | pending_approval | deferred_not_eligible) */
+.outcome {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 3px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.78em;
+  font-weight: 600;
+  border: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-2);
+}
+.outcome-allow {
+  color: var(--knot-gold-ink);
+  border-color: var(--knot-gold-ink);
+}
+html.dark .outcome-allow {
+  color: var(--knot-gold);
+  border-color: var(--knot-gold);
+}

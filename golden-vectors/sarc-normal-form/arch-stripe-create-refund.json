@@ -1,0 +1,24 @@
+{
+  "name": "arch-stripe-create-refund",
+  "description": "Architecture §2 example request (stripe.create_refund) WITH context.arguments (R32). The raw arguments object is hashed verbatim into the normal form; its keys sort independently of resource.properties.",
+  "request": {
+    "contractVersion": "1.0",
+    "requestId": "01JZ8Q4T0F5N8P2Q7C3WERKD9B",
+    "timestamp": "2026-07-03T14:40:02.005Z",
+    "subject": { "type": "user", "id": "avijeett007@gmail.com" },
+    "action": { "name": "stripe.create_refund" },
+    "resource": {
+      "type": "stripe_charge",
+      "id": "ch_3PabcXYZ",
+      "properties": { "amount": 42000, "currency": "usd", "reason": "requested_by_customer" }
+    },
+    "context": {
+      "agent": { "id": "codex-cli", "type": "ai_agent" },
+      "env": { "time": "2026-07-03T14:40:01Z", "surfaceLocal": true },
+      "arguments": { "charge": "ch_3PabcXYZ", "amount": 42000, "reason": "requested_by_customer" }
+    },
+    "surface": { "kind": "stdio_proxy", "instanceId": "px_01JZ8Q4", "server": "stripe-mcp" }
+  },
+  "canonical": "{\"action\":\"stripe.create_refund\",\"agent\":\"codex-cli\",\"arguments\":{\"amount\":42000,\"charge\":\"ch_3PabcXYZ\",\"reason\":\"requested_by_customer\"},\"resource\":{\"id\":\"ch_3PabcXYZ\",\"properties\":{\"amount\":42000,\"currency\":\"usd\",\"reason\":\"requested_by_customer\"},\"type\":\"stripe_charge\"},\"subject\":\"avijeett007@gmail.com\",\"v\":1}",
+  "hash": "sha256:4232d6d8d6864300670e5d78749f6689de24ddf23084a7a339ac12d8ef5f4053"
+}
