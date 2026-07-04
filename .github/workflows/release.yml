@@ -156,8 +156,15 @@ jobs:
             grep -rEn 'from *"@knotrust/|require\("@knotrust/' "$DIST_DIR" || true
             exit 1
           fi
-          grep -rq '@knotrust/core' "$DIST_DIR" \
-            || { echo "::error::inlined @knotrust/core marker absent from bundle"; exit 1; }
+          # (5) Positive proof core was actually inlined (not just "no external
+          #     import"). We grep for a load-bearing core SYMBOL rather than the
+          #     literal "@knotrust/core" package-name string: that string is only
+          #     the tree-shakeable `PKG` const and legitimately vanishes when
+          #     unused, whereas `canonicalizeJcs` (core's RFC 8785 canonicalizer)
+          #     is on the decision hot path and is always present in any bundle
+          #     that inlines core.
+          grep -rq 'canonicalizeJcs' "$DIST_DIR" \
+            || { echo "::error::inlined @knotrust/core code absent from bundle (canonicalizeJcs marker not found)"; exit 1; }
           echo "OK: dist/ inlines @knotrust/core with no external @knotrust/* import"
 
           echo

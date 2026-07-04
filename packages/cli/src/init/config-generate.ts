@@ -243,11 +243,11 @@ export function serializeConfigTs(
   const header = commentBlock("//", opts);
   header.push(
     "//",
-    "// Plain data export — deliberately NOT `import { defineKnotrustConfig }",
-    '// from "@knotrust/store"`: that internal package is bundled into the',
-    "// published `knotrust` CLI, never published to npm on its own (ADR-0002),",
-    "// so a generated config file cannot depend on it. c12's bundled jiti",
-    "// executes this file directly and reads its default export.",
+    "// Plain data export — deliberately NOT a `defineKnotrustConfig` helper",
+    "// imported from the @knotrust/store package. That internal package is",
+    "// bundled into the published `knotrust` CLI, never published to npm on",
+    "// its own (ADR-0002), so a generated config file cannot depend on it.",
+    "// c12's bundled jiti executes this file directly and reads the default export.",
   );
   return `${header.join("\n")}\nexport default ${JSON.stringify(config, null, 2)};\n`;
 }
