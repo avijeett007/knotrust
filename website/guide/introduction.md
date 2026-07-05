@@ -2,14 +2,37 @@
 
 ## What is KnoTrust?
 
-KnoTrust is a **local-first policy enforcement and human-approval layer for
-the Model Context Protocol (MCP)**. It sits between an MCP client (Claude
-Desktop, Codex CLI, or any MCP-native agent) and the real MCP server it's
-talking to, watches every `tools/call`, and decides — in real time — whether
-that call should run, be refused, or wait for a human.
+AI agents don't just chat anymore — they *do* things. They send emails,
+move money, deploy code, delete files, and post messages, often on their
+own. That's genuinely useful, and a little nerve-wracking: the same agent
+that drafts your release notes could just as easily force-push over your
+main branch, and you'd only find out afterward.
+
+KnoTrust puts a human back in the loop for the actions that actually
+matter. You decide once which kinds of actions are safe to run
+automatically, which need a one-time approval, and which should always
+stop and ask a person. Then KnoTrust sits quietly between your agent and
+its tools: safe actions pass straight through, risky ones pause and wait
+for your "yes," and every attempt — allowed or blocked — is written to a
+log you can check later.
+
+Think of it as a spending limit and an approval step for your AI agent —
+plus a receipt for everything it does.
+
+More precisely: KnoTrust is a **local-first policy enforcement and
+human-approval layer for the Model Context Protocol (MCP)** — the open
+standard that agents like Claude and Codex use to reach outside tools such
+as files, GitHub, Stripe, or Slack. Whenever an agent "calls a tool" —
+attempts to actually *do* something rather than just talk — it does so
+through MCP, and each of those attempts is a **tool call**. KnoTrust sits
+between an MCP client (Claude Desktop, Codex CLI, or any MCP-native agent)
+and the real MCP server it's talking to, watches every `tools/call`, and
+decides — in real time — whether that call should run, be refused, or wait
+for a human.
 
 Concretely, it ships as a single `knotrust` CLI. Its flagship surface is a
-**stdio proxy**: you wrap an MCP server's launch command in `knotrust --`,
+**stdio proxy** (a lightweight relay process that inspects each message as
+it passes through): you wrap an MCP server's launch command in `knotrust --`,
 and from then on every tool call that server would have run instead passes
 through KnoTrust's decision core first.
 
@@ -56,10 +79,12 @@ Read more in [Core Concepts](/guide/core-concepts) and the full
 
 ## The grant: KnoTrust's core primitive
 
-A **grant** is a pre-satisfied prerequisite — `{principal, agent, tool,
-resource scope, conditions, risk tier, granted_by, expiry, single_use}` —
-signed with Ed25519 (JWS Compact, `alg: EdDSA`) so it can be verified fully
-offline, with no network call and no external service. There are two kinds:
+In plain terms, a **grant** is a pre-approval you sign once so KnoTrust
+doesn't have to ask you about the same safe action every time. Formally, a
+grant is a pre-satisfied prerequisite — `{principal, agent, tool, resource
+scope, conditions, risk tier, granted_by, expiry, single_use}` — signed with
+Ed25519 (JWS Compact, `alg: EdDSA`) so it can be verified fully offline,
+with no network call and no external service. There are two kinds:
 
 - **Durable grants** you mint ahead of time with `knotrust grant`, for calls
   you're happy to pre-authorize (e.g. "this agent may open GitHub issues on
@@ -76,9 +101,13 @@ for KnoTrust's injection-resistance — see [Security](/security).
 
 ## Risk tiers
 
-Every tool call is classified into one of three tiers, and the tier drives
-everything else — whether a durable grant can satisfy it, whether it's
-cached, and whether it can ever fail open:
+In plain words, every action falls into one of three buckets: `routine`
+(safe, everyday reads — these run automatically), `sensitive` (writes and
+changes — these need a one-time grant), and `critical` (dangerous or
+irreversible actions — these always stop and ask a human). Every tool call
+is classified into one of these three tiers, and the tier drives everything
+else — whether a durable grant can satisfy it, whether it's cached, and
+whether it can ever fail open:
 
 <p>
 <span class="tier tier-routine">routine</span>

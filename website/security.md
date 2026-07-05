@@ -1,5 +1,9 @@
 # Security & Threat Boundaries
 
+> New here? This page is the detailed, technical honesty check on exactly
+> what KnoTrust protects against and what it doesn't. For the plain-language
+> version first, see the [Introduction](/guide/introduction).
+
 KnoTrust is a **Policy Enforcement Point (PEP)**: a proxy that sits on the
 MCP action surface, maps every `tools/call` into a policy decision,
 evaluates it against signed grants and configuration, and — for `critical`

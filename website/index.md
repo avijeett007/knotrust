@@ -6,8 +6,8 @@ hero:
     light: /logo-wordmark.svg
     dark: /logo-wordmark-dark.svg
     alt: KnoTrust
-  text: "Stop re-approving safe calls. Stop the catastrophic ones cold."
-  tagline: The local-first policy and approval layer for what your agents can do through MCP — signed grants, human-in-the-loop approval, and a tamper-evident audit trail. Portable across Claude, Codex, and any MCP-native agent.
+  text: "Stop trusting your AI agents blindly."
+  tagline: KnoTrust puts you back in charge of what your AI agents can actually do — the safe actions run instantly, the risky ones wait for your approval, and every attempt is logged. Works with Claude, Codex, and any MCP agent. Nothing to host, no account.
   actions:
     - theme: brand
       text: Get Started
@@ -17,18 +17,18 @@ hero:
       link: https://github.com/avijeett007/knotrust
 
 features:
-  - title: Local-first & zero-backend
-    details: Runs entirely on your machine. "npx knotrust -- <server>" and go — no account, no cloud, and nothing to stand up.
-  - title: Signed durable grants
-    details: Pre-authorize a tool once with an Ed25519-signed grant. Stop re-approving the same safe call in every new session.
-  - title: Human-in-the-loop approval
-    details: Critical actions block and wait for an authenticated human — a terminal prompt or the localhost approval page, on every client.
-  - title: Fully audited & tamper-evident
-    details: Every decision — allow, deny, or hold — appends to a hash-chained log. Nothing your agent attempted goes unrecorded.
-  - title: Cross-agent portable
-    details: One grant, one policy — works across Claude Desktop, Codex CLI, and any MCP-native agent, not locked to a single client's config.
-  - title: Standards-conformant
-    details: Built on the AuthZEN Authorization API's Subject/Action/Resource/Context model and the MCP protocol, not a bespoke policy language.
+  - title: Runs on your machine
+    details: Nothing to host, no account, no cloud. `npx knotrust -- <server>` and you're going. Your policy and history stay in `~/.knotrust/` on your computer.
+  - title: Approve once, not every time
+    details: Pre-approve a safe action with a signed grant, and KnoTrust stops asking you about it in every new session.
+  - title: A human checks the risky stuff
+    details: Critical actions stop and wait for a real person to approve them — from a terminal prompt or a local approval page — on every client.
+  - title: Everything is on the record
+    details: Every decision — allowed, denied, or held — is appended to a tamper-evident log. Nothing your agent tried goes unrecorded.
+  - title: Works with all your agents
+    details: One policy, one grant — the same in front of Claude Desktop, Codex CLI, or any MCP agent. Not locked to one app's settings.
+  - title: Built on open standards
+    details: Uses the AuthZEN authorization model and the MCP protocol — not a bespoke, lock-in policy language.
 ---
 
 ## Get started in under a minute
@@ -41,11 +41,12 @@ npx knotrust init claude
 npx knotrust -- node server.js
 ```
 
-`knotrust init` finds your client's MCP config, rewires each server to run
-behind `knotrust --`, and seeds a `knotrust.config` with suggested risk tiers
-drawn from the server's own tool annotations. From there, every `tools/call`
-is decided: routine calls pass straight through, sensitive calls need a
-grant, and critical calls block until an authenticated human approves them.
+`knotrust init` finds your AI client's tool configuration, rewires each tool
+server to run behind `knotrust --`, and sets up a starting policy with
+suggested risk tiers based on what each tool says about itself. From there,
+every action your agent tries is decided by its risk tier: routine actions
+pass straight through, sensitive actions need a one-time approval (a
+"grant"), and critical actions stop and wait for you to say yes.
 See the [installation & quickstart guide](/guide/installation) for the full
 walkthrough.
 

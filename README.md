@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <b>The portable, YOLO-proof, fully-audited control layer for what your agents can do through MCP.</b>
+  <b>Stop trusting your AI agents blindly. Take back control of what they can do.</b>
 </p>
 
 <p align="center">
@@ -19,7 +19,9 @@
 
 ---
 
-**KnoTrust** is an open-source, local-first, zero-backend policy-and-approval layer for [MCP](https://modelcontextprotocol.io) tool calls. It runs as a **stdio proxy** — `knotrust -- your-mcp-server` — that sits between an MCP client (Claude Desktop, Codex CLI, or any MCP-native agent) and the real server, intercepting every `tools/call`. Each call is evaluated against **signed grants**, a **risk tier**, and (when neither is enough) a **human approval**, and resolved to one of four outcomes: `allow`, `deny`, `pending_approval`, or `deferred_not_eligible`. Enforcement happens **inside the proxy process, server-side of the client** — so it holds even when the client itself is running in a YOLO / auto-approve / `--dangerously-skip-permissions` mode, because the client's own approval UI was never in the loop to begin with.
+AI agents don't just chat anymore — they *do* things: send emails, move money, deploy code, delete files, post messages, often on their own. That's genuinely useful, and a little nerve-wracking — the same agent that drafts your release notes could just as easily force-push over your main branch, and you'd only find out afterward. Think of **KnoTrust** as a spending limit and an approval step for your AI agent, plus a receipt for everything it does.
+
+Precisely: **KnoTrust** is an open-source, local-first, zero-backend policy-and-approval layer for [MCP](https://modelcontextprotocol.io) (the open standard agents like Claude and Codex use to reach outside tools) tool calls. It runs as a **stdio proxy** — `knotrust -- your-mcp-server` — that sits between an MCP client (Claude Desktop, Codex CLI, or any MCP-native agent) and the real server, intercepting every `tools/call` (any time your agent tries to actually *do* something, rather than just talk). Each call is evaluated against **signed grants** (a pre-approval you sign once so KnoTrust doesn't have to ask about the same safe action every time), a **risk tier**, and (when neither is enough) a **human approval**, and resolved to one of four outcomes: `allow`, `deny`, `pending_approval`, or `deferred_not_eligible`. Enforcement happens **inside the proxy process, server-side of the client** — so it holds even when the client itself is running in a YOLO / auto-approve / `--dangerously-skip-permissions` mode, because the client's own approval UI was never in the loop to begin with.
 
 ## What KnoTrust is
 

@@ -1,5 +1,9 @@
 # Architecture
 
+> New here? This page describes how KnoTrust is built internally. For a
+> plain-language explanation of what it does and why, see the
+> [Introduction](/guide/introduction) first.
+
 ## Overview
 
 KnoTrust is a **Policy Enforcement Point (PEP)** — a thin enforcement edge

@@ -2,6 +2,11 @@
 
 ## Risk tiers
 
+In plain terms: every action your agent tries gets sorted into one of
+three buckets — safe reads that run automatically, changes that need a
+one-time approval, and dangerous or irreversible actions that always stop
+and wait for a human.
+
 Every tool call KnoTrust intercepts is classified into one of three tiers,
 in order of increasing consequence:
 
@@ -28,6 +33,11 @@ unannotated, destructive-looking tool defaults to `sensitive` or higher, never
 whatever an admin envelope has floored it at.
 
 ## Signed grants
+
+In plain terms: a grant is a pre-approval you sign once, so KnoTrust
+doesn't have to ask you about the same safe action every time — like
+handing someone a standing permission slip instead of asking again on
+every single occasion.
 
 A **grant** is the thing that lets a call skip re-approval: a pre-satisfied
 prerequisite of the shape `{principal, agent, tool, resource scope,
@@ -66,6 +76,11 @@ authenticated human approving an escalation. See
 
 ## Approvals & block-and-wait
 
+In plain terms: when your agent tries something risky enough to need a
+real person's sign-off, KnoTrust pauses the action and asks you — wherever
+you happen to be looking, whether that's a terminal or a browser tab —
+rather than letting it run and hoping for the best.
+
 When a `critical` call has no matching grant, it escalates to the approval
 orchestrator, which walks a lifecycle of
 `requested → pending → approved | denied | expired | cancelled`. Because
@@ -94,6 +109,10 @@ validated against DNS-rebinding. See [Security](/security) for the full
 threat model behind this design.
 
 ## The audit trail
+
+In plain terms: KnoTrust keeps a running record of everything your agent
+tried — like a receipt roll you can scroll back through — so if something
+goes wrong, you can see exactly what happened and when.
 
 Every decision KnoTrust makes — allow, deny, a cache hit, an approval
 request, a grant minted, a fail-open firing — appends exactly one event to

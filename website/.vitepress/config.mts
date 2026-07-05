@@ -14,7 +14,7 @@ export default defineConfig({
   base: BASE,
   title: "KnoTrust",
   description:
-    "The portable, local-first policy and approval layer for what your agents can do through MCP — signed grants, human-in-the-loop approval, and a tamper-evident audit trail.",
+    "Take back control of what your AI agents can do. KnoTrust auto-allows the safe actions, holds risky ones for your approval, and logs everything — local-first, open-source, and portable across Claude, Codex, and any MCP agent.",
   lastUpdated: true,
   cleanUrls: true,
 
@@ -24,13 +24,13 @@ export default defineConfig({
     ["meta", { name: "theme-color", content: "#E7A93A" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: "KnoTrust" }],
-    ["meta", { property: "og:title", content: "KnoTrust — the trust layer for what your agents can do" }],
+    ["meta", { property: "og:title", content: "KnoTrust — stop trusting your AI agents blindly" }],
     [
       "meta",
       {
         property: "og:description",
         content:
-          "Local-first policy enforcement for MCP tool calls: signed durable grants, human-in-the-loop approval, and a hash-chained audit trail — portable across agents.",
+          "Take back control of what your AI agents can do: auto-allow safe actions, hold risky ones for a human's approval, and keep an audit trail of everything. Local-first and open-source.",
       },
     ],
     ["meta", { property: "og:image", content: `${SITE_ORIGIN}${BASE}social-preview.png` }],
