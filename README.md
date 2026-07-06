@@ -42,6 +42,23 @@ No single piece of this is unclaimed territory — policy engines, approval bots
 
 Requires **Node ≥ 22**.
 
+> **Heads-up: `knotrust` isn't on npm yet.** `npx knotrust …` won't resolve until the first release — until then, build from source (just below). You get the same `knotrust` command on your PATH, so use `knotrust …` in place of every `npx knotrust …` in this README.
+
+### Run from source
+
+```sh
+corepack enable                                          # pnpm ships with Node, via Corepack
+git clone https://github.com/avijeett007/knotrust.git && cd knotrust
+pnpm install
+pnpm build
+cd packages/cli && npm link && cd ../..                  # puts `knotrust` on your PATH
+knotrust -- echo hi                                      # smoke test: prints KnoTrust's startup banner
+```
+
+Update later with `git pull && pnpm build` (the link points at your checkout — no re-link needed); remove it with `npm rm -g knotrust`. Prefer pnpm to `npm link`, or hit a PATH issue? The [installation guide](https://avijeett007.github.io/knotrust/guide/installation#install-from-source) has the alternatives.
+
+### Then wrap your client
+
 ```sh
 # Point knotrust at your MCP client's config and wrap the servers you choose
 npx knotrust init claude          # or: npx knotrust init codex

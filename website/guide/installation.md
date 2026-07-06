@@ -8,8 +8,55 @@
   other MCP-native client works too, via the manual wrap in
   [Wrapping a server directly](#wrapping-a-server-directly).
 
-There is no separate install step: KnoTrust is distributed as a single
-`knotrust` npm package, run through `npx`.
+## Install from source
+
+> **KnoTrust isn't on npm yet.** The published `npx knotrust …` one-liner is
+> the intended experience, but until the first release lands you run it from a
+> local build. It only takes a few minutes, and you end up with the same
+> `knotrust` command on your PATH — so every example in these docs works, just
+> drop the `npx`.
+
+You'll need **Node ≥ 22** and **pnpm** (via Corepack, which ships with Node).
+
+```sh [Terminal]
+# Enable pnpm (bundled with Node via Corepack)
+corepack enable
+
+# 1. Clone and enter the repo
+git clone https://github.com/avijeett007/knotrust.git
+cd knotrust
+
+# 2. Install workspace dependencies
+pnpm install
+
+# 3. Build the knotrust CLI and its packages
+pnpm build
+
+# 4. Put the `knotrust` command on your PATH
+cd packages/cli && npm link && cd ../..
+```
+
+Step 4 uses `npm link` because npm's global bin directory is already on your
+PATH on a standard Node install. Prefer pnpm? Run `pnpm setup` once (to add
+pnpm's global bin to your PATH), then `pnpm link --global` from `packages/cli`.
+
+Confirm it's wired up:
+
+```sh [Terminal]
+knotrust -- echo hi
+```
+
+You should see KnoTrust's startup line — *"no knotrust.config found … tool
+inventory capture and drift detection are ACTIVE … tools/call is NOT gated"* —
+which means the proxy is running. Press Ctrl-C to stop.
+
+From here, **use `knotrust …` wherever these docs show `npx knotrust …`**. The
+bare command is your local build; `npx knotrust` would try to fetch the
+not-yet-published package.
+
+**Keeping it current:** the global link points at your checkout, so
+`git pull && pnpm build` updates your `knotrust` in place — no need to re-link.
+To remove it later: `npm rm -g knotrust`.
 
 ## Wrapping an existing client with `knotrust init`
 

@@ -33,6 +33,13 @@ features:
 
 ## Get started in under a minute
 
+::: tip Not on npm yet — build from source
+`knotrust` isn't published to npm yet, so `npx knotrust …` won't resolve.
+[Install from source](/guide/installation#install-from-source) — a few minutes,
+and you get the same `knotrust` command on your PATH. Then use `knotrust …` in
+place of `npx knotrust …` in the examples below.
+:::
+
 ```sh [Terminal]
 # Point KnoTrust at Claude Desktop's existing MCP servers
 npx knotrust init claude
